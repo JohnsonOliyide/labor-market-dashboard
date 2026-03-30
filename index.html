@@ -8,54 +8,60 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     :root {
-      --bg: #f7f8fb;
+      --bg: #f4f7fb;
       --card: #ffffff;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --border: #e5e7eb;
-      --accent: #0f766e;
-      --accent-2: #1d4ed8;
-      --warn: #b45309;
+      --text: #172033;
+      --muted: #5c667a;
+      --border: #dbe3ef;
+      --line1: #1d4ed8;
+      --line2: #0f766e;
+      --line3: #7c3aed;
+      --soft1: rgba(29, 78, 216, 0.16);
+      --soft2: rgba(15, 118, 110, 0.18);
+      --soft3: rgba(124, 58, 237, 0.16);
       --danger: #b91c1c;
       --ok: #166534;
-      --shadow: 0 10px 25px rgba(0,0,0,0.06);
-      --radius: 18px;
+      --warn: #92400e;
+      --shadow: 0 14px 35px rgba(15, 23, 42, 0.08);
+      --radius: 22px;
     }
 
     * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
+      background: linear-gradient(180deg, #f8fbff 0%, #f4f7fb 100%);
       color: var(--text);
       line-height: 1.5;
     }
 
     .container {
-      max-width: 1200px;
+      max-width: 1280px;
       margin: 0 auto;
-      padding: 28px 18px 40px;
+      padding: 30px 18px 48px;
     }
 
     .hero {
-      background: linear-gradient(135deg, #ffffff 0%, #eef6ff 100%);
+      background: linear-gradient(135deg, #ffffff 0%, #eef4ff 58%, #f6fbff 100%);
       border: 1px solid var(--border);
-      border-radius: 24px;
+      border-radius: 28px;
       box-shadow: var(--shadow);
-      padding: 26px;
+      padding: 28px;
       margin-bottom: 22px;
     }
 
     .hero h1 {
-      margin: 0 0 8px;
-      font-size: clamp(1.8rem, 3vw, 2.6rem);
-      line-height: 1.1;
+      margin: 0 0 10px;
+      font-size: clamp(1.9rem, 3vw, 2.8rem);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
     }
 
     .hero p {
       margin: 0;
       color: var(--muted);
-      max-width: 850px;
+      max-width: 920px;
+      font-size: 1rem;
     }
 
     .grid {
@@ -74,104 +80,150 @@
 
     .span-12 { grid-column: span 12; }
     .span-8 { grid-column: span 8; }
-    .span-4 { grid-column: span 4; }
     .span-6 { grid-column: span 6; }
+    .span-4 { grid-column: span 4; }
 
-    @media (max-width: 900px) {
-      .span-8, .span-4, .span-6 { grid-column: span 12; }
+    @media (max-width: 980px) {
+      .span-8, .span-6, .span-4 { grid-column: span 12; }
     }
 
     .section-title {
-      margin: 0 0 10px;
-      font-size: 1.1rem;
-      font-weight: 700;
+      margin: 0 0 6px;
+      font-size: 1.12rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
     }
 
     .subtle {
+      margin: 0 0 14px;
       color: var(--muted);
       font-size: 0.95rem;
-      margin-top: -4px;
-      margin-bottom: 14px;
     }
 
-    .controls {
-      display: grid;
-      gap: 14px;
-    }
-
-    label {
-      display: block;
+    .loading, .error {
       font-weight: 600;
-      margin-bottom: 6px;
-      font-size: 0.95rem;
     }
 
-    input[type="range"] {
-      width: 100%;
-    }
-
-    .checkboxes {
-      display: grid;
-      gap: 10px;
-    }
-
-    .checkbox-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--text);
-    }
+    .error { color: var(--danger); }
 
     .metric-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 14px;
     }
 
-    @media (max-width: 760px) {
+    @media (max-width: 900px) {
+      .metric-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 620px) {
       .metric-grid { grid-template-columns: 1fr; }
     }
 
     .metric {
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 14px;
-      background: #fcfcfd;
+      border-radius: 18px;
+      padding: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
     }
 
     .metric .label {
       color: var(--muted);
-      font-size: 0.9rem;
-      margin-bottom: 6px;
+      font-size: 0.88rem;
+      margin-bottom: 8px;
+      font-weight: 600;
     }
 
     .metric .value {
-      font-size: 1.8rem;
+      font-size: 1.65rem;
       font-weight: 800;
       line-height: 1;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
     }
 
     .metric .note {
       color: var(--muted);
-      font-size: 0.85rem;
+      font-size: 0.84rem;
     }
 
-    .status {
+    .pill {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       border-radius: 999px;
       padding: 8px 12px;
       font-weight: 700;
-      font-size: 0.92rem;
-      background: #f3f4f6;
+      font-size: 0.9rem;
       border: 1px solid var(--border);
+      background: #f8fafc;
     }
 
-    .status.tight { color: var(--danger); background: #fef2f2; border-color: #fecaca; }
-    .status.balanced { color: var(--warn); background: #fffbeb; border-color: #fde68a; }
-    .status.slack { color: var(--ok); background: #f0fdf4; border-color: #bbf7d0; }
+    .pill.tight { color: var(--danger); background: #fef2f2; border-color: #fecaca; }
+    .pill.slack { color: var(--ok); background: #f0fdf4; border-color: #bbf7d0; }
+    .pill.balanced { color: var(--warn); background: #fff7ed; border-color: #fed7aa; }
+
+    .control-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    button.range-btn {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button.range-btn.active {
+      background: #e8f0ff;
+      border-color: #b8cdf8;
+    }
+
+    .checkboxes {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .asof-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .asof-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fbfdff;
+      font-size: 0.92rem;
+    }
+
+    .asof-item span:last-child {
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .chart-wrap {
+      position: relative;
+      min-height: 380px;
+    }
 
     .table-wrap {
       overflow-x: auto;
@@ -187,160 +239,175 @@
       padding: 12px 10px;
       border-bottom: 1px solid var(--border);
       text-align: left;
+      vertical-align: top;
     }
 
     th {
       color: var(--muted);
-      font-size: 0.86rem;
+      font-size: 0.82rem;
       text-transform: uppercase;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.04em;
     }
 
-    .footer-note {
+    .note-box {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: #f8fbff;
+      border: 1px solid var(--border);
       color: var(--muted);
-      font-size: 0.88rem;
-      margin-top: 14px;
+      font-size: 0.92rem;
     }
 
-    .loading {
-      color: var(--muted);
-      font-style: italic;
-    }
-
-    .error {
-      color: var(--danger);
-      font-weight: 600;
-    }
-
-    a { color: var(--accent-2); }
+    .small { font-size: 0.85rem; color: var(--muted); }
+    .strong { font-weight: 700; color: var(--text); }
+    a { color: var(--line1); }
   </style>
 </head>
 <body>
   <div class="container">
     <section class="hero">
-      <h1>How Tight Is the Labor Market?</h1>
+      <h1>Labor Market Tightness Dashboard</h1>
       <p>
-        This dashboard compares the unemployment rate to different estimates of the natural rate of unemployment (u*).
-        When actual unemployment is below a model’s u*, the labor market is tighter under that model. When it is above,
-        the labor market is looser.
+        This dashboard compares the unemployment rate with estimates of the natural rate of unemployment. It presents two views:
+        a credible-set approach using the Kansas City Fed estimate and a standardized-gap approach using both the Kansas City Fed estimate and the CBO benchmark.
       </p>
     </section>
 
     <div id="appStatus" class="card span-12 loading">Loading data…</div>
 
     <div class="grid">
+      <section class="card span-8">
+        <h2 class="section-title">Latest snapshot</h2>
+        <p class="subtle">The latest values and classifications update with the selected date range and comparison month.</p>
+        <div id="metricGrid" class="metric-grid"></div>
+      </section>
+
+      <section class="card span-4">
+        <h2 class="section-title">Data timing</h2>
+        <p class="subtle">These series do not all update on the same schedule.</p>
+        <div id="asOfBox" class="asof-list"></div>
+      </section>
+
       <section class="card span-4">
         <h2 class="section-title">Controls</h2>
-        <p class="subtle">Start with the latest available values, then test simple scenarios.</p>
-
-        <div class="controls">
-          <div>
-            <label for="scenarioSlider">Scenario adjustment to unemployment rate</label>
-            <input id="scenarioSlider" type="range" min="-2" max="2" step="0.1" value="0" />
-            <div class="subtle"><span id="scenarioValue">0.0</span> percentage points</div>
-          </div>
-
-          <div>
-            <label>Visible benchmark measures</label>
-            <div class="checkboxes">
-              <label class="checkbox-row"><input type="checkbox" id="toggleActual" checked disabled /> Actual unemployment rate</label>
-              <label class="checkbox-row"><input type="checkbox" id="toggleKc" checked /> KC Fed u*</label>
-              <label class="checkbox-row"><input type="checkbox" id="toggleNairu" checked /> CBO NAIRU (placeholder)</label>
-              <label class="checkbox-row"><input type="checkbox" id="toggleAlt" checked /> Alternative u* (placeholder)</label>
-            </div>
-          </div>
+        <p class="subtle">Choose the time window and which benchmark lines you want to show.</p>
+        <div class="control-row" id="rangeButtons">
+          <button class="range-btn active" data-range="24">2Y</button>
+          <button class="range-btn" data-range="60">5Y</button>
+          <button class="range-btn" data-range="120">10Y</button>
+          <button class="range-btn" data-range="full">Full</button>
+        </div>
+        <div class="checkboxes">
+          <label class="checkbox-row"><input type="checkbox" id="toggleUnrate" checked /> Actual unemployment rate</label>
+          <label class="checkbox-row"><input type="checkbox" id="toggleKcLine" checked /> KC Fed u*</label>
+          <label class="checkbox-row"><input type="checkbox" id="toggleKcBand" checked /> KC Fed credible set</label>
+          <label class="checkbox-row"><input type="checkbox" id="toggleCbo" checked /> CBO natural rate</label>
         </div>
       </section>
 
       <section class="card span-8">
-        <h2 class="section-title">Latest comparison</h2>
-        <p class="subtle">Negative tightness = tighter labor market because unemployment is below u*.</p>
-        <div class="metric-grid" id="metricGrid"></div>
-        <div class="footer-note" id="latestDateText"></div>
-      </section>
-
-      <section class="card span-8">
-        <h2 class="section-title">Historical chart</h2>
-        <p class="subtle">Actual unemployment versus selected benchmark u* series.</p>
-        <canvas id="lineChart" height="120"></canvas>
-      </section>
-
-      <section class="card span-4">
-        <h2 class="section-title">Interpretation</h2>
-        <p class="subtle">A simple public-facing summary using the KC Fed estimate.</p>
-        <div id="statusBadge" class="status balanced">Waiting for data</div>
-        <p id="statusExplanation" style="margin-top: 14px;"></p>
+        <h2 class="section-title">KC Fed credible-set view</h2>
+        <p class="subtle">If the credible set for the unemployment gap crosses zero, the labor market is treated as balanced. If the entire gap band is above zero, it is slack. If the entire gap band is below zero, it is tight.</p>
+        <div class="chart-wrap"><canvas id="credibleChart"></canvas></div>
+        <div style="margin-top:14px; display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+          <span id="credibleBadge" class="pill balanced">Balanced</span>
+          <span id="credibleSummary" class="small"></span>
+        </div>
       </section>
 
       <section class="card span-12">
-        <h2 class="section-title">Model comparison table</h2>
+        <h2 class="section-title">Standardized-gap view</h2>
+        <p class="subtle">This scales the unemployment gap by the historical time-series standard deviation of the natural-rate estimate. Values above +1 indicate slack, values below -1 indicate tightness.</p>
+        <div class="chart-wrap"><canvas id="standardizedChart"></canvas></div>
+      </section>
+
+      <section class="card span-6">
+        <h2 class="section-title">Latest month comparison</h2>
+        <p class="subtle">The comparison below uses the most recent month available in the aligned monthly dataset.</p>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
                 <th>Measure</th>
-                <th>u*</th>
-                <th>Actual unemployment</th>
-                <th>Tightness (u - u*)</th>
-                <th>Reading</th>
+                <th>Comparison month</th>
+                <th>Gap</th>
+                <th>Classification</th>
               </tr>
             </thead>
             <tbody id="comparisonTable"></tbody>
           </table>
         </div>
-        <div class="footer-note">
-          Version 1 uses the KC Fed CSV as the live data source. The CBO/alternative series below are placeholders so you can drop in other public series later without changing the page structure.
-        </div>
+      </section>
+
+      <section class="card span-6">
+        <h2 class="section-title">Interpretation notes</h2>
+        <div class="note-box" id="interpretationNotes"></div>
       </section>
 
       <section class="card span-12">
-        <h2 class="section-title">Data sources</h2>
-        <ul>
-          <li>KC Fed model-based r* and u* CSV</li>
-          <li>Actual unemployment rate and other benchmarks can be added next</li>
-        </ul>
-        <p class="footer-note">
-          Recommended next step: replace the placeholder series with live FRED or other public endpoints once you confirm which benchmark measures you want side by side.
-        </p>
+        <h2 class="section-title">Method notes</h2>
+        <div class="note-box">
+          <p><span class="strong">KC Fed credible-set approach:</span> We compute the unemployment gap as unemployment minus the KC Fed estimate of u*. We then compute a lower and upper gap using the upper and lower KC Fed credible bounds. If zero lies inside that gap band, the labor market is labeled balanced. If the whole band is above zero, the labor market is labeled slack. If the whole band is below zero, the labor market is labeled tight.</p>
+          <p><span class="strong">Standardized-gap approach:</span> We compute the unemployment gap and divide it by the time-series standard deviation of the relevant natural-rate estimate. This is a descriptive normalization based on historical variability, not a measure of statistical significance.</p>
+          <p><span class="strong">Monthly alignment:</span> The CBO series is quarterly. In this dashboard, each quarterly CBO value is repeated across the three months in the same quarter so it can be compared with monthly unemployment data.</p>
+        </div>
       </section>
     </div>
   </div>
 
   <script>
-    const CSV_URL = "./KCFed_ModelBased_Rstar_Ustar.csv";
+    const KC_CSV_URL = "./KCFed_ModelBased_Rstar_Ustar.csv";
+    const UNRATE_CSV_URL = "https://fred.stlouisfed.org/graph/fredgraph.csv?id=UNRATE";
+    const NROU_CSV_URL = "https://fred.stlouisfed.org/graph/fredgraph.csv?id=NROU";
 
     const state = {
-      raw: [],
-      latest: null,
-      scenarioAdjustment: 0,
-      chart: null,
+      kc: [],
+      unrate: [],
+      cba: [],
+      monthly: [],
+      viewRange: 24,
+      credibleChart: null,
+      standardizedChart: null,
     };
 
     const ids = {
       appStatus: document.getElementById("appStatus"),
       metricGrid: document.getElementById("metricGrid"),
-      latestDateText: document.getElementById("latestDateText"),
+      asOfBox: document.getElementById("asOfBox"),
       comparisonTable: document.getElementById("comparisonTable"),
-      statusBadge: document.getElementById("statusBadge"),
-      statusExplanation: document.getElementById("statusExplanation"),
-      scenarioSlider: document.getElementById("scenarioSlider"),
-      scenarioValue: document.getElementById("scenarioValue"),
-      toggleKc: document.getElementById("toggleKc"),
-      toggleNairu: document.getElementById("toggleNairu"),
-      toggleAlt: document.getElementById("toggleAlt"),
-      lineChart: document.getElementById("lineChart"),
+      interpretationNotes: document.getElementById("interpretationNotes"),
+      credibleBadge: document.getElementById("credibleBadge"),
+      credibleSummary: document.getElementById("credibleSummary"),
+      credibleChart: document.getElementById("credibleChart"),
+      standardizedChart: document.getElementById("standardizedChart"),
+      toggleUnrate: document.getElementById("toggleUnrate"),
+      toggleKcLine: document.getElementById("toggleKcLine"),
+      toggleKcBand: document.getElementById("toggleKcBand"),
+      toggleCbo: document.getElementById("toggleCbo"),
+      rangeButtons: document.getElementById("rangeButtons"),
     };
 
     function parseNumber(value) {
       if (value === null || value === undefined || value === "") return null;
-      const cleaned = String(value).replace(/,/g, "").trim();
+      const cleaned = String(value).replace(/"/g, "").replace(/,/g, "").trim();
       const n = Number(cleaned);
       return Number.isFinite(n) ? n : null;
+    }
+
+    function cleanString(value) {
+      if (value === null || value === undefined) return null;
+      return String(value).replace(/"/g, "").trim();
     }
 
     function monthLabel(dateStr) {
       const d = new Date(dateStr + "T00:00:00");
       return d.toLocaleDateString(undefined, { year: "numeric", month: "short" });
+    }
+
+    function quarterLabel(dateStr) {
+      const d = new Date(dateStr + "T00:00:00");
+      const q = Math.floor(d.getMonth() / 3) + 1;
+      return `${d.getFullYear()} Q${q}`;
     }
 
     function formatPct(value) {
@@ -350,222 +417,389 @@
 
     function formatGap(value) {
       if (value === null || value === undefined || Number.isNaN(value)) return "—";
-      return `${value.toFixed(1)} pp`;
+      return `${value.toFixed(2)} pp`;
     }
 
-    function classifyGap(gap) {
-      if (gap === null || Number.isNaN(gap)) return { label: "Unavailable", cls: "balanced" };
-      if (gap <= -0.5) return { label: "Tight", cls: "tight" };
-      if (gap >= 0.5) return { label: "Slack", cls: "slack" };
-      return { label: "Roughly balanced", cls: "balanced" };
+    function formatZ(value) {
+      if (value === null || value === undefined || Number.isNaN(value)) return "—";
+      return value.toFixed(2);
     }
 
-    function parseKcFedCsv(csvText) {
-      const parsed = Papa.parse(csvText, {
-        header: false,
-        skipEmptyLines: true,
-      });
+    function stddev(arr) {
+      const vals = arr.filter(v => v !== null && !Number.isNaN(v));
+      if (vals.length < 2) return null;
+      const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+      const variance = vals.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / (vals.length - 1);
+      return Math.sqrt(variance);
+    }
 
-      const rows = parsed.data;
+    function lastValidDate(series, field) {
+      const filtered = series.filter(d => d[field] !== null && d[field] !== undefined && !Number.isNaN(d[field]));
+      if (!filtered.length) return null;
+      return filtered[filtered.length - 1].date;
+    }
 
-      if (!rows || rows.length < 3) {
-        throw new Error("The CSV did not contain enough rows.");
-      }
+    function classifyCredible(rec) {
+      if (!rec) return { label: "Balanced", cls: "balanced" };
+      if (rec.gapLower <= 0 && rec.gapUpper >= 0) return { label: "Balanced", cls: "balanced" };
+      if (rec.gapLower > 0 && rec.gapUpper > 0) return { label: "Slack", cls: "slack" };
+      if (rec.gapLower < 0 && rec.gapUpper < 0) return { label: "Tight", cls: "tight" };
+      return { label: "Balanced", cls: "balanced" };
+    }
 
-      // Row 1 is a descriptive title. Row 2 contains the actual column names.
-      const headerRow = rows[1].map((x) => String(x).trim());
-      const dataRows = rows.slice(2);
+    function classifyStandardized(z) {
+      if (z === null || Number.isNaN(z)) return "—";
+      if (z >= 1) return "Slack";
+      if (z <= -1) return "Tight";
+      return "Within ±1 SD";
+    }
 
-      const records = dataRows
-        .map((row) => ({
-          date: row[0] ? String(row[0]).trim() : null,
+    function parseKcCsv(csvText) {
+      const lines = csvText.split(/
+?
+/).filter(Boolean);
+      if (lines.length < 3) throw new Error("KC CSV is too short.");
+      const dataLines = lines.slice(2);
+      return dataLines.map(line => {
+        const row = line.split(",");
+        return {
+          date: cleanString(row[0]),
           rStar: parseNumber(row[1]),
-          rStarLower68: parseNumber(row[2]),
-          rStarUpper68: parseNumber(row[3]),
-          kcUStar: parseNumber(row[4]),
-          kcUStarLower68: parseNumber(row[5]),
-          kcUStarUpper68: parseNumber(row[6]),
-        }))
-        .filter((d) => d.date && d.kcUStar !== null);
-
-      if (!records.length) {
-        throw new Error("The CSV loaded, but no usable observations were found in the u* column.");
-      }
-
-      console.log("KC Fed header row:", headerRow);
-      return records;
+          rLower: parseNumber(row[2]),
+          rUpper: parseNumber(row[3]),
+          uStar: parseNumber(row[4]),
+          uLower: parseNumber(row[5]),
+          uUpper: parseNumber(row[6]),
+        };
+      }).filter(d => d.date && d.uStar !== null);
     }
 
-    function latestValues() {
-      const latest = state.latest;
-      if (!latest) return [];
+    function parseFredCsv(csvText) {
+      const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+      const rows = parsed.data;
+      const firstKey = rows.length ? Object.keys(rows[0])[0] : null;
+      const secondKey = rows.length ? Object.keys(rows[0])[1] : null;
+      return rows.map(row => ({
+        date: cleanString(row[firstKey]),
+        value: parseNumber(row[secondKey]),
+      })).filter(d => d.date && d.value !== null);
+    }
 
-      const actual = latest.actualU + state.scenarioAdjustment;
-      return [
-        {
-          name: "Actual unemployment",
-          uStar: null,
-          actual,
-          gap: null,
-          showAsMetric: true,
-          note: "Scenario-adjusted value",
-        },
-        {
-          name: "KC Fed u*",
-          uStar: latest.kcUStar,
-          actual,
-          gap: actual - latest.kcUStar,
-          showAsMetric: ids.toggleKc.checked,
-        },
-        {
-          name: "CBO NAIRU",
-          uStar: latest.nairu,
-          actual,
-          gap: actual - latest.nairu,
-          showAsMetric: ids.toggleNairu.checked,
-        },
-        {
-          name: "Alternative u*",
-          uStar: latest.altUStar,
-          actual,
-          gap: actual - latest.altUStar,
-          showAsMetric: ids.toggleAlt.checked,
-        },
-      ];
+    function monthKey(dateStr) {
+      return dateStr.slice(0, 7);
+    }
+
+    function expandQuarterlyToMonthly(cboSeries) {
+      const map = new Map();
+      cboSeries.forEach(rec => {
+        const d = new Date(rec.date + "T00:00:00");
+        const year = d.getFullYear();
+        const startMonth = d.getMonth();
+        for (let i = 0; i < 3; i++) {
+          const month = String(startMonth + i + 1).padStart(2, "0");
+          map.set(`${year}-${month}`, rec.value);
+        }
+      });
+      return map;
+    }
+
+    function buildMonthlyDataset() {
+      const kcMap = new Map(state.kc.map(d => [monthKey(d.date), d]));
+      const unMap = new Map(state.unrate.map(d => [monthKey(d.date), d.value]));
+      const cboMonthMap = expandQuarterlyToMonthly(state.cba);
+
+      const keys = [...kcMap.keys()].filter(k => unMap.has(k)).sort();
+      const sdKc = stddev(state.kc.map(d => d.uStar));
+      const sdCbo = stddev(state.cba.map(d => d.value));
+
+      state.monthly = keys.map(k => {
+        const kc = kcMap.get(k);
+        const un = unMap.get(k);
+        const cbo = cboMonthMap.has(k) ? cboMonthMap.get(k) : null;
+        const gapKc = un !== null && kc?.uStar !== null ? un - kc.uStar : null;
+        const gapLower = un !== null && kc?.uUpper !== null ? un - kc.uUpper : null;
+        const gapUpper = un !== null && kc?.uLower !== null ? un - kc.uLower : null;
+        const gapCbo = un !== null && cbo !== null ? un - cbo : null;
+        return {
+          date: `${k}-01`,
+          unemployment: un,
+          kcUStar: kc?.uStar ?? null,
+          kcLower: kc?.uLower ?? null,
+          kcUpper: kc?.uUpper ?? null,
+          cboUStar: cbo,
+          gapKc,
+          gapLower,
+          gapUpper,
+          gapCbo,
+          zKc: sdKc ? gapKc / sdKc : null,
+          zCbo: sdCbo ? gapCbo / sdCbo : null,
+        };
+      });
+    }
+
+    function getDisplayedSeries() {
+      const all = state.monthly;
+      if (!all.length) return [];
+      if (state.viewRange === "full") return all;
+      return all.slice(-state.viewRange);
+    }
+
+    function latestRecord() {
+      const shown = getDisplayedSeries();
+      return shown.length ? shown[shown.length - 1] : null;
     }
 
     function renderMetrics() {
-      const rows = latestValues();
-      const metrics = rows.filter((row) => row.showAsMetric || row.name === "Actual unemployment");
-
-      ids.metricGrid.innerHTML = metrics.map((row) => {
-        if (row.name === "Actual unemployment") {
-          return `
-            <div class="metric">
-              <div class="label">Actual unemployment</div>
-              <div class="value">${formatPct(row.actual)}</div>
-              <div class="note">${row.note}</div>
-            </div>
-          `;
-        }
-
-        const reading = classifyGap(row.gap);
-        return `
-          <div class="metric">
-            <div class="label">${row.name}</div>
-            <div class="value">${formatPct(row.uStar)}</div>
-            <div class="note">Tightness: ${formatGap(row.gap)} · ${reading.label}</div>
-          </div>
-        `;
-      }).join("");
+      const latest = latestRecord();
+      if (!latest) return;
+      const cred = classifyCredible(latest);
+      ids.metricGrid.innerHTML = `
+        <div class="metric">
+          <div class="label">Comparison month</div>
+          <div class="value">${monthLabel(latest.date)}</div>
+          <div class="note">Latest aligned monthly observation</div>
+        </div>
+        <div class="metric">
+          <div class="label">Unemployment rate</div>
+          <div class="value">${formatPct(latest.unemployment)}</div>
+          <div class="note">Actual monthly unemployment rate</div>
+        </div>
+        <div class="metric">
+          <div class="label">KC Fed u*</div>
+          <div class="value">${formatPct(latest.kcUStar)}</div>
+          <div class="note">68% set: ${formatPct(latest.kcLower)} to ${formatPct(latest.kcUpper)}</div>
+        </div>
+        <div class="metric">
+          <div class="label">Credible-set classification</div>
+          <div class="value">${cred.label}</div>
+          <div class="note">Gap band: ${formatGap(latest.gapLower)} to ${formatGap(latest.gapUpper)}</div>
+        </div>
+      `;
     }
 
-    function renderTable() {
-      const rows = latestValues().filter((row) => row.uStar !== null && row.showAsMetric);
-      ids.comparisonTable.innerHTML = rows.map((row) => {
-        const reading = classifyGap(row.gap);
-        return `
-          <tr>
-            <td>${row.name}</td>
-            <td>${formatPct(row.uStar)}</td>
-            <td>${formatPct(row.actual)}</td>
-            <td>${formatGap(row.gap)}</td>
-            <td><span class="status ${reading.cls}">${reading.label}</span></td>
-          </tr>
-        `;
-      }).join("");
+    function renderAsOf() {
+      const kcDate = lastValidDate(state.kc, "uStar");
+      const unDate = lastValidDate(state.unrate, "value");
+      const cboDate = lastValidDate(state.cba, "value");
+      ids.asOfBox.innerHTML = `
+        <div class="asof-item"><span>KC Fed u*</span><span>${kcDate ? monthLabel(kcDate) : "—"}</span></div>
+        <div class="asof-item"><span>Unemployment rate</span><span>${unDate ? monthLabel(unDate) : "—"}</span></div>
+        <div class="asof-item"><span>CBO natural rate</span><span>${cboDate ? quarterLabel(cboDate) : "—"}</span></div>
+      `;
     }
 
-    function renderInterpretation() {
-      const rows = latestValues();
-      const kc = rows.find((r) => r.name === "KC Fed u*");
-      const reading = classifyGap(kc.gap);
-
-      ids.statusBadge.className = `status ${reading.cls}`;
-      ids.statusBadge.textContent = reading.label;
-
-      let text = "";
-      if (reading.cls === "tight") {
-        text = `Under the KC Fed estimate, the labor market looks tight because the unemployment rate (${formatPct(kc.actual)}) is below u* (${formatPct(kc.uStar)}).`;
-      } else if (reading.cls === "slack") {
-        text = `Under the KC Fed estimate, the labor market looks slack because the unemployment rate (${formatPct(kc.actual)}) is above u* (${formatPct(kc.uStar)}).`;
-      } else {
-        text = `Under the KC Fed estimate, the labor market looks roughly balanced because the unemployment rate (${formatPct(kc.actual)}) is close to u* (${formatPct(kc.uStar)}).`;
-      }
-      ids.statusExplanation.textContent = text;
+    function renderCredibleSummary() {
+      const latest = latestRecord();
+      if (!latest) return;
+      const cred = classifyCredible(latest);
+      ids.credibleBadge.className = `pill ${cred.cls}`;
+      ids.credibleBadge.textContent = cred.label;
+      ids.credibleSummary.textContent = `For ${monthLabel(latest.date)}, the KC Fed unemployment gap is ${formatGap(latest.gapKc)}, with a credible-set range from ${formatGap(latest.gapLower)} to ${formatGap(latest.gapUpper)}.`;
     }
 
-    function renderDateText() {
-      ids.latestDateText.textContent = state.latest ? `Latest month shown: ${monthLabel(state.latest.date)}` : "";
+    function renderComparisonTable() {
+      const latest = latestRecord();
+      if (!latest) return;
+      const cred = classifyCredible(latest);
+      ids.comparisonTable.innerHTML = `
+        <tr>
+          <td>KC Fed credible-set approach</td>
+          <td>${monthLabel(latest.date)}</td>
+          <td>${formatGap(latest.gapKc)}</td>
+          <td>${cred.label}</td>
+        </tr>
+        <tr>
+          <td>KC Fed standardized gap</td>
+          <td>${monthLabel(latest.date)}</td>
+          <td>${formatZ(latest.zKc)}</td>
+          <td>${classifyStandardized(latest.zKc)}</td>
+        </tr>
+        <tr>
+          <td>CBO standardized gap</td>
+          <td>${monthLabel(latest.date)}</td>
+          <td>${formatZ(latest.zCbo)}</td>
+          <td>${classifyStandardized(latest.zCbo)}</td>
+        </tr>
+      `;
     }
 
-    function buildChartDatasets() {
-      const labels = state.raw.map((d) => monthLabel(d.date));
-      const actualSeries = state.raw.map((d, i, arr) => i === arr.length - 1 ? d.actualU + state.scenarioAdjustment : d.actualU);
+    function renderNotes() {
+      const latest = latestRecord();
+      if (!latest) return;
+      const cred = classifyCredible(latest);
+      ids.interpretationNotes.innerHTML = `
+        <p><span class="strong">KC credible-set view:</span> For ${monthLabel(latest.date)}, the labor market is classified as <span class="strong">${cred.label.toLowerCase()}</span> because the credible set for the unemployment gap runs from <span class="strong">${formatGap(latest.gapLower)}</span> to <span class="strong">${formatGap(latest.gapUpper)}</span>.</p>
+        <p><span class="strong">KC standardized view:</span> The KC Fed standardized gap is <span class="strong">${formatZ(latest.zKc)}</span>, which is classified as <span class="strong">${classifyStandardized(latest.zKc).toLowerCase()}</span>.</p>
+        <p><span class="strong">CBO standardized view:</span> The CBO standardized gap is <span class="strong">${formatZ(latest.zCbo)}</span>. The CBO series is quarterly and is repeated within each quarter for monthly comparison.</p>
+      `;
+    }
 
-      const datasets = [
-        {
-          label: "Actual unemployment",
-          data: actualSeries,
-          borderWidth: 2,
-          tension: 0.2,
-        }
-      ];
+    function displayedLabels(series) {
+      return series.map(d => monthLabel(d.date));
+    }
 
-      if (ids.toggleKc.checked) {
+    function renderCredibleChart() {
+      const shown = getDisplayedSeries();
+      const labels = displayedLabels(shown);
+      const datasets = [];
+
+      if (ids.toggleKcBand.checked) {
         datasets.push({
-          label: "KC Fed u*",
-          data: state.raw.map((d) => d.kcUStar),
-          borderWidth: 2,
-          tension: 0.2,
+          label: "KC gap lower",
+          data: shown.map(d => d.gapLower),
+          borderColor: "rgba(0,0,0,0)",
+          pointRadius: 0,
+          tension: 0.18,
+          fill: false,
+        });
+        datasets.push({
+          label: "KC credible band",
+          data: shown.map(d => d.gapUpper),
+          borderColor: "rgba(0,0,0,0)",
+          backgroundColor: "rgba(29,78,216,0.18)",
+          pointRadius: 0,
+          tension: 0.18,
+          fill: '-1',
         });
       }
 
-      if (ids.toggleNairu.checked) {
-        datasets.push({
-          label: "CBO NAIRU",
-          data: state.raw.map((d) => d.nairu),
-          borderWidth: 2,
-          tension: 0.2,
-        });
-      }
+      datasets.push({
+        label: "KC unemployment gap",
+        data: shown.map(d => d.gapKc),
+        borderColor: "#1d4ed8",
+        backgroundColor: "#1d4ed8",
+        borderWidth: 2.5,
+        pointRadius: 0,
+        tension: 0.18,
+      });
 
-      if (ids.toggleAlt.checked) {
-        datasets.push({
-          label: "Alternative u*",
-          data: state.raw.map((d) => d.altUStar),
-          borderWidth: 2,
-          tension: 0.2,
-        });
-      }
+      datasets.push({
+        label: "Zero line",
+        data: shown.map(() => 0),
+        borderColor: "#9ca3af",
+        borderDash: [6, 6],
+        borderWidth: 1.5,
+        pointRadius: 0,
+        tension: 0,
+      });
 
-      return { labels, datasets };
-    }
-
-    function renderChart() {
-      const { labels, datasets } = buildChartDatasets();
-
-      if (state.chart) {
-        state.chart.data.labels = labels;
-        state.chart.data.datasets = datasets;
-        state.chart.update();
+      if (state.credibleChart) {
+        state.credibleChart.data.labels = labels;
+        state.credibleChart.data.datasets = datasets;
+        state.credibleChart.update();
         return;
       }
 
-      state.chart = new Chart(ids.lineChart, {
+      state.credibleChart = new Chart(ids.credibleChart, {
         type: 'line',
         data: { labels, datasets },
         options: {
           responsive: true,
-          maintainAspectRatio: true,
+          maintainAspectRatio: false,
           interaction: { mode: 'index', intersect: false },
-          scales: {
-            y: {
-              title: { display: true, text: 'Percent' }
+          plugins: {
+            legend: { position: 'bottom' },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  return `${ctx.dataset.label}: ${formatGap(ctx.raw)}`;
+                }
+              }
             }
           },
+          scales: {
+            y: {
+              title: { display: true, text: 'Percentage points' }
+            }
+          }
+        }
+      });
+    }
+
+    function renderStandardizedChart() {
+      const shown = getDisplayedSeries();
+      const labels = displayedLabels(shown);
+      const datasets = [];
+
+      if (ids.toggleKcLine.checked) {
+        datasets.push({
+          label: "KC standardized gap",
+          data: shown.map(d => d.zKc),
+          borderColor: "#0f766e",
+          backgroundColor: "#0f766e",
+          borderWidth: 2.5,
+          pointRadius: 0,
+          tension: 0.18,
+        });
+      }
+
+      if (ids.toggleCbo.checked) {
+        datasets.push({
+          label: "CBO standardized gap",
+          data: shown.map(d => d.zCbo),
+          borderColor: "#7c3aed",
+          backgroundColor: "#7c3aed",
+          borderWidth: 2.5,
+          pointRadius: 0,
+          tension: 0.18,
+        });
+      }
+
+      datasets.push({
+        label: "+1 threshold",
+        data: shown.map(() => 1),
+        borderColor: "#9ca3af",
+        borderDash: [6, 6],
+        borderWidth: 1.4,
+        pointRadius: 0,
+        tension: 0,
+      });
+      datasets.push({
+        label: "-1 threshold",
+        data: shown.map(() => -1),
+        borderColor: "#9ca3af",
+        borderDash: [6, 6],
+        borderWidth: 1.4,
+        pointRadius: 0,
+        tension: 0,
+      });
+      datasets.push({
+        label: "Zero line",
+        data: shown.map(() => 0),
+        borderColor: "#cbd5e1",
+        borderWidth: 1.2,
+        pointRadius: 0,
+        tension: 0,
+      });
+
+      if (state.standardizedChart) {
+        state.standardizedChart.data.labels = labels;
+        state.standardizedChart.data.datasets = datasets;
+        state.standardizedChart.update();
+        return;
+      }
+
+      state.standardizedChart = new Chart(ids.standardizedChart, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
           plugins: {
-            legend: { position: 'bottom' }
+            legend: { position: 'bottom' },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  return `${ctx.dataset.label}: ${formatZ(ctx.raw)}`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              title: { display: true, text: 'Standard deviations' }
+            }
           }
         }
       });
@@ -573,95 +807,62 @@
 
     function renderAll() {
       renderMetrics();
-      renderTable();
-      renderInterpretation();
-      renderDateText();
-      renderChart();
+      renderAsOf();
+      renderCredibleSummary();
+      renderComparisonTable();
+      renderNotes();
+      renderCredibleChart();
+      renderStandardizedChart();
     }
 
     function attachEvents() {
-      ids.scenarioSlider.addEventListener('input', (e) => {
-        state.scenarioAdjustment = parseFloat(e.target.value);
-        ids.scenarioValue.textContent = state.scenarioAdjustment.toFixed(1);
-        renderAll();
+      ids.rangeButtons.querySelectorAll('.range-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          ids.rangeButtons.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          state.viewRange = btn.dataset.range === 'full' ? 'full' : Number(btn.dataset.range);
+          renderAll();
+        });
       });
 
-      [ids.toggleKc, ids.toggleNairu, ids.toggleAlt].forEach((el) => {
+      [ids.toggleUnrate, ids.toggleKcLine, ids.toggleKcBand, ids.toggleCbo].forEach(el => {
         el.addEventListener('change', renderAll);
       });
     }
 
-   async function loadData() {
-  try {
-    const response = await fetch("./KCFed_ModelBased_Rstar_Ustar.csv?ts=" + Date.now());
-    if (!response.ok) {
-      throw new Error("Could not open local CSV file");
+    async function fetchText(url) {
+      const response = await fetch(url + (url.includes('?') ? '&' : '?') + 'ts=' + Date.now());
+      if (!response.ok) throw new Error(`Could not fetch ${url}`);
+      return response.text();
     }
 
-    const csvText = await response.text();
+    async function loadAllData() {
+      try {
+        const [kcText, unText, cboText] = await Promise.all([
+          fetchText(KC_CSV_URL),
+          fetchText(UNRATE_CSV_URL),
+          fetchText(NROU_CSV_URL),
+        ]);
 
-    Papa.parse(csvText, {
-      header: false,
-      skipEmptyLines: true,
-      complete: function(results) {
-        try {
-          const rows = results.data;
+        state.kc = parseKcCsv(kcText);
+        state.unrate = parseFredCsv(unText);
+        state.cba = parseFredCsv(cboText);
+        buildMonthlyDataset();
 
-          if (!rows || rows.length < 3) {
-            throw new Error("CSV format incorrect");
-          }
-
-          const dataRows = rows.slice(2);
-
-          const records = dataRows.map(row => {
-            const clean = (val) => {
-              if (val === null || val === undefined) return null;
-              return String(val).replace(/"/g, "").trim();
-            };
-
-            const date = clean(row[0]);
-            const kcUStar = parseFloat(clean(row[4]));
-
-            return {
-              date,
-              kcUStar
-            };
-          }).filter(d => d.date && !isNaN(d.kcUStar));
-
-          if (!records.length) {
-            throw new Error("u* column not detected properly");
-          }
-
-          state.raw = records.map(d => ({
-            ...d,
-            actualU: d.kcUStar + 0.3,
-            nairu: d.kcUStar + 0.2,
-            altUStar: d.kcUStar - 0.2
-          }));
-
-          state.latest = state.raw[state.raw.length - 1];
-
-          ids.appStatus.remove();
-          renderAll();
-        } catch (err) {
-          ids.appStatus.className = "card span-12 error";
-          ids.appStatus.textContent = "Parsing error: " + err.message;
+        if (!state.monthly.length) {
+          throw new Error('No aligned monthly observations were created.');
         }
-      },
-      error: function() {
-        ids.appStatus.className = "card span-12 error";
-        ids.appStatus.textContent = "CSV parse failed.";
+
+        ids.appStatus.remove();
+        renderAll();
+      } catch (err) {
+        ids.appStatus.className = 'card span-12 error';
+        ids.appStatus.textContent = `Data loading error: ${err.message}`;
       }
-    });
-  } catch (err) {
-    ids.appStatus.className = "card span-12 error";
-    ids.appStatus.textContent = "Fetch error: " + err.message;
-  }
-}
+    }
 
     attachEvents();
-    loadData();
+    loadAllData();
   </script>
 </body>
 </html>
-
