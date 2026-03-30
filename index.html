@@ -592,55 +592,61 @@
     }
 
     async function loadData() {
-     function loadData() {
-  Papa.parse(CSV_URL, {
-    download: true,
-    skipEmptyLines: true,
-    complete: function(results) {
-      try {
-        const rows = results.data;
-
-        if (!rows || rows.length < 3) {
-          throw new Error("CSV format not recognized");
-        }
-
-        const dataRows = rows.slice(2); // skip first 2 rows
-
-        const records = dataRows
-          .map(row => ({
-            date: row[0],
-            kcUStar: parseFloat(row[4])
-          }))
-          .filter(d => d.date && !isNaN(d.kcUStar));
-
-        if (!records.length) {
-          throw new Error("No valid data found");
-        }
-
-        state.raw = records.map(d => ({
-          ...d,
-          actualU: d.kcUStar + 0.3,
-          nairu: d.kcUStar + 0.2,
-          altUStar: d.kcUStar - 0.2
-        }));
-
-        state.latest = state.raw[state.raw.length - 1];
-
-        ids.appStatus.remove();
-        renderAll();
-
-      } catch (err) {
-        ids.appStatus.className = 'card span-12 error';
-        ids.appStatus.textContent = "Error parsing data: " + err.message;
-      }
-    },
-    error: function(err) {
-      ids.appStatus.className = 'card span-12 error';
-      ids.appStatus.textContent = "Could not load KC Fed CSV.";
+  try {
+    const response = await fetch("./KCFed_ModelBased_Rstar_Ustar.csv?ts=" + Date.now());
+    if (!response.ok) {
+      throw new Error("Could not open local CSV file");
     }
-  });
+
+    const csvText = await response.text();
+    const lines = csvText
+      .split(/\r?\n/)
+      .map(line => line.trim())
+      .filter(line => line.length > 0);
+
+    if (lines.length < 3) {
+      throw new Error("CSV file is too short");
+    }
+
+    // row 0 = title row
+    // row 1 = column names
+    // row 2 onward = data
+    const dataLines = lines.slice(2);
+
+    const records = dataLines.map(line => {
+      const cols = line.split(",");
+
+      return {
+        date: cols[0]?.trim(),
+        rStar: parseFloat(cols[1]),
+        rStarLower68: parseFloat(cols[2]),
+        rStarUpper68: parseFloat(cols[3]),
+        kcUStar: parseFloat(cols[4]),
+        kcUStarLower68: parseFloat(cols[5]),
+        kcUStarUpper68: parseFloat(cols[6]),
+      };
+    }).filter(d => d.date && !isNaN(d.kcUStar));
+
+    if (!records.length) {
+      throw new Error("No usable u* observations found");
+    }
+
+    state.raw = records.map(d => ({
+      ...d,
+      actualU: d.kcUStar + 0.3,
+      nairu: d.kcUStar + 0.2,
+      altUStar: d.kcUStar - 0.2,
+    }));
+
+    state.latest = state.raw[state.raw.length - 1];
+
+    ids.appStatus.remove();
+    renderAll();
+  } catch (err) {
+    ids.appStatus.className = "card span-12 error";
+    ids.appStatus.textContent = "Data loading error: " + err.message;
+  }
 }
-    }
 
     attachEvents();
     loadData();
