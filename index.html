@@ -333,7 +333,8 @@
 
     function parseNumber(value) {
       if (value === null || value === undefined || value === "") return null;
-      const n = Number(value);
+      const cleaned = String(value).replace(/,/g, "").trim();
+      const n = Number(cleaned);
       return Number.isFinite(n) ? n : null;
     }
 
@@ -359,38 +360,40 @@
       return { label: "Roughly balanced", cls: "balanced" };
     }
 
-    function getColumn(row, candidateNames) {
-      for (const name of candidateNames) {
-        if (row[name] !== undefined) return row[name];
+    function parseKcFedCsv(csvText) {
+      const parsed = Papa.parse(csvText, {
+        header: false,
+        skipEmptyLines: true,
+      });
+
+      const rows = parsed.data;
+
+      if (!rows || rows.length < 3) {
+        throw new Error("The CSV did not contain enough rows.");
       }
-      return null;
-    }
 
-    function transformRows(rows) {
-      return rows
-        .map((row) => {
-          const date = getColumn(row, ["Date", "date", "DATE"]);
-          const kcUStar = parseNumber(getColumn(row, [
-            "Ustar",
-            "u_star",
-            "U_Star",
-            "u*",
-            "UstarMedian",
-            "Ustar_Median",
-            "UstarMedian68",
-            "u"
-          ]));
+      // Row 1 is a descriptive title. Row 2 contains the actual column names.
+      const headerRow = rows[1].map((x) => String(x).trim());
+      const dataRows = rows.slice(2);
 
-          return {
-            date,
-            kcUStar,
-            // Placeholders for next round.
-            actualU: kcUStar !== null ? kcUStar + 0.3 : null,
-            nairu: kcUStar !== null ? kcUStar + 0.2 : null,
-            altUStar: kcUStar !== null ? kcUStar - 0.2 : null,
-          };
-        })
+      const records = dataRows
+        .map((row) => ({
+          date: row[0] ? String(row[0]).trim() : null,
+          rStar: parseNumber(row[1]),
+          rStarLower68: parseNumber(row[2]),
+          rStarUpper68: parseNumber(row[3]),
+          kcUStar: parseNumber(row[4]),
+          kcUStarLower68: parseNumber(row[5]),
+          kcUStarUpper68: parseNumber(row[6]),
+        }))
         .filter((d) => d.date && d.kcUStar !== null);
+
+      if (!records.length) {
+        throw new Error("The CSV loaded, but no usable observations were found in the u* column.");
+      }
+
+      console.log("KC Fed header row:", headerRow);
+      return records;
     }
 
     function latestValues() {
@@ -588,31 +591,31 @@
       });
     }
 
-    function loadData() {
-      Papa.parse(CSV_URL, {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: (results) => {
-          const transformed = transformRows(results.data);
-
-          if (!transformed.length) {
-            ids.appStatus.className = 'card span-12 error';
-            ids.appStatus.textContent = 'The KC Fed CSV loaded, but the page could not identify the u* column automatically. Update the column mapping in transformRows().';
-            return;
-          }
-
-          state.raw = transformed;
-          state.latest = transformed[transformed.length - 1];
-
-          ids.appStatus.remove();
-          renderAll();
-        },
-        error: (err) => {
-          ids.appStatus.className = 'card span-12 error';
-          ids.appStatus.textContent = `Could not load the KC Fed CSV. ${err?.message || ''}`;
+    async function loadData() {
+      try {
+        const response = await fetch(CSV_URL);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
         }
-      });
+
+        const csvText = await response.text();
+        const records = parseKcFedCsv(csvText);
+
+        // Temporary placeholders so the page works before we wire in the other live series.
+        state.raw = records.map((d) => ({
+          ...d,
+          actualU: d.kcUStar + 0.3,
+          nairu: d.kcUStar + 0.2,
+          altUStar: d.kcUStar - 0.2,
+        }));
+        state.latest = state.raw[state.raw.length - 1];
+
+        ids.appStatus.remove();
+        renderAll();
+      } catch (err) {
+        ids.appStatus.className = 'card span-12 error';
+        ids.appStatus.textContent = `Could not load the KC Fed CSV. ${err?.message || ''}`;
+      }
     }
 
     attachEvents();
@@ -620,3 +623,4 @@
   </script>
 </body>
 </html>
+
