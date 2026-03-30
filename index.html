@@ -591,7 +591,7 @@
       });
     }
 
-    async function loadData() {
+   async function loadData() {
   try {
     const response = await fetch("./KCFed_ModelBased_Rstar_Ustar.csv?ts=" + Date.now());
     if (!response.ok) {
@@ -599,52 +599,63 @@
     }
 
     const csvText = await response.text();
-    const lines = csvText
-      .split(/\r?\n/)
-      .map(line => line.trim())
-      .filter(line => line.length > 0);
 
-    if (lines.length < 3) {
-      throw new Error("CSV file is too short");
-    }
+    Papa.parse(csvText, {
+      header: false,
+      skipEmptyLines: true,
+      complete: function(results) {
+        try {
+          const rows = results.data;
 
-    // row 0 = title row
-    // row 1 = column names
-    // row 2 onward = data
-    const dataLines = lines.slice(2);
+          if (!rows || rows.length < 3) {
+            throw new Error("CSV format incorrect");
+          }
 
-    const records = dataLines.map(line => {
-      const cols = line.split(",");
+          const dataRows = rows.slice(2);
 
-      return {
-        date: cols[0]?.trim(),
-        rStar: parseFloat(cols[1]),
-        rStarLower68: parseFloat(cols[2]),
-        rStarUpper68: parseFloat(cols[3]),
-        kcUStar: parseFloat(cols[4]),
-        kcUStarLower68: parseFloat(cols[5]),
-        kcUStarUpper68: parseFloat(cols[6]),
-      };
-    }).filter(d => d.date && !isNaN(d.kcUStar));
+          const records = dataRows.map(row => {
+            const clean = (val) => {
+              if (val === null || val === undefined) return null;
+              return String(val).replace(/"/g, "").trim();
+            };
 
-    if (!records.length) {
-      throw new Error("No usable u* observations found");
-    }
+            const date = clean(row[0]);
+            const kcUStar = parseFloat(clean(row[4]));
 
-    state.raw = records.map(d => ({
-      ...d,
-      actualU: d.kcUStar + 0.3,
-      nairu: d.kcUStar + 0.2,
-      altUStar: d.kcUStar - 0.2,
-    }));
+            return {
+              date,
+              kcUStar
+            };
+          }).filter(d => d.date && !isNaN(d.kcUStar));
 
-    state.latest = state.raw[state.raw.length - 1];
+          if (!records.length) {
+            throw new Error("u* column not detected properly");
+          }
 
-    ids.appStatus.remove();
-    renderAll();
+          state.raw = records.map(d => ({
+            ...d,
+            actualU: d.kcUStar + 0.3,
+            nairu: d.kcUStar + 0.2,
+            altUStar: d.kcUStar - 0.2
+          }));
+
+          state.latest = state.raw[state.raw.length - 1];
+
+          ids.appStatus.remove();
+          renderAll();
+        } catch (err) {
+          ids.appStatus.className = "card span-12 error";
+          ids.appStatus.textContent = "Parsing error: " + err.message;
+        }
+      },
+      error: function() {
+        ids.appStatus.className = "card span-12 error";
+        ids.appStatus.textContent = "CSV parse failed.";
+      }
+    });
   } catch (err) {
     ids.appStatus.className = "card span-12 error";
-    ids.appStatus.textContent = "Data loading error: " + err.message;
+    ids.appStatus.textContent = "Fetch error: " + err.message;
   }
 }
 
