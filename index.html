@@ -504,44 +504,48 @@
     }
 
     function buildMonthlyDataset() {
-      const kcMap = new Map(state.kc.map(d => [monthKey(d.date), d]));
-      const unMap = new Map(state.unrate.map(d => [monthKey(d.date), d.value]));
-      const cboMonthMap = expandQuarterlyToMonthly(state.cba);
+  const kcMap = new Map(state.kc.map(d => [monthKey(d.date), d]));
+  const unMap = new Map(state.unrate.map(d => [monthKey(d.date), d.value]));
+  const cboMonthMap = expandQuarterlyToMonthly(state.cba);
 
-      const keys = [...kcMap.keys()].filter(k => unMap.has(k)).sort();
-      const sdKc = stddev(state.kc.map(d => d.uStar));
-      const sdCbo = stddev(state.cba.map(d => d.value));
+  // Start from the earliest KC Fed u* month
+  const keys = [...kcMap.keys()].sort();
 
-      state.monthly = keys.map(k => {
-        const kc = kcMap.get(k);
-        let un = unMap.get(k);
+  const sdKc = stddev(state.kc.map(d => d.uStar));
+  const sdCbo = stddev(state.cba.map(d => d.value));
 
-// Patch for October 2025 missing value
-if (k === "2025-10-01" && (un === null || un === undefined)) {
-  un = 4.4;
-}
-        const cbo = cboMonthMap.has(k) ? cboMonthMap.get(k) : null;
-        const gapKc = un !== null && kc?.uStar !== null ? un - kc.uStar : null;
-        const gapLower = un !== null && kc?.uUpper !== null ? un - kc.uUpper : null;
-        const gapUpper = un !== null && kc?.uLower !== null ? un - kc.uLower : null;
-        const gapCbo = un !== null && cbo !== null ? un - cbo : null;
-        return {
-          date: `${k}-01`,
-          unemployment: un,
-          kcUStar: kc?.uStar ?? null,
-          kcLower: kc?.uLower ?? null,
-          kcUpper: kc?.uUpper ?? null,
-          cboUStar: cbo,
-          gapKc,
-          gapLower,
-          gapUpper,
-          gapCbo,
-          zKc: sdKc ? gapKc / sdKc : null,
-          zCbo: sdCbo ? gapCbo / sdCbo : null,
-        };
-      });
+  state.monthly = keys.map(k => {
+    const kc = kcMap.get(k);
+    let un = unMap.has(k) ? unMap.get(k) : null;
+
+    // Patch missing October 2025 unemployment value
+    if (k === "2025-10" && (un === null || un === undefined || Number.isNaN(un))) {
+      un = 4.4;
     }
 
+    const cbo = cboMonthMap.has(k) ? cboMonthMap.get(k) : null;
+
+    const gapKc = (un !== null && kc?.uStar !== null) ? un - kc.uStar : null;
+    const gapLower = (un !== null && kc?.uUpper !== null) ? un - kc.uUpper : null;
+    const gapUpper = (un !== null && kc?.uLower !== null) ? un - kc.uLower : null;
+    const gapCbo = (un !== null && cbo !== null) ? un - cbo : null;
+
+    return {
+      date: `${k}-01`,
+      unemployment: un,
+      kcUStar: kc?.uStar ?? null,
+      kcLower: kc?.uLower ?? null,
+      kcUpper: kc?.uUpper ?? null,
+      cboUStar: cbo,
+      gapKc,
+      gapLower,
+      gapUpper,
+      gapCbo,
+      zKc: (sdKc && gapKc !== null) ? gapKc / sdKc : null,
+      zCbo: (sdCbo && gapCbo !== null) ? gapCbo / sdCbo : null,
+    };
+  }).filter(d => d.kcUStar !== null && d.unemployment !== null);
+}
     function getDisplayedSeries() {
       const all = state.monthly;
       if (!all.length) return [];
