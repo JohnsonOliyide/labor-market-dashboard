@@ -592,30 +592,54 @@
     }
 
     async function loadData() {
+     function loadData() {
+  Papa.parse(CSV_URL, {
+    download: true,
+    skipEmptyLines: true,
+    complete: function(results) {
       try {
-        const response = await fetch(CSV_URL);
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
+        const rows = results.data;
+
+        if (!rows || rows.length < 3) {
+          throw new Error("CSV format not recognized");
         }
 
-        const csvText = await response.text();
-        const records = parseKcFedCsv(csvText);
+        const dataRows = rows.slice(2); // skip first 2 rows
 
-        // Temporary placeholders so the page works before we wire in the other live series.
-        state.raw = records.map((d) => ({
+        const records = dataRows
+          .map(row => ({
+            date: row[0],
+            kcUStar: parseFloat(row[4])
+          }))
+          .filter(d => d.date && !isNaN(d.kcUStar));
+
+        if (!records.length) {
+          throw new Error("No valid data found");
+        }
+
+        state.raw = records.map(d => ({
           ...d,
           actualU: d.kcUStar + 0.3,
           nairu: d.kcUStar + 0.2,
-          altUStar: d.kcUStar - 0.2,
+          altUStar: d.kcUStar - 0.2
         }));
+
         state.latest = state.raw[state.raw.length - 1];
 
         ids.appStatus.remove();
         renderAll();
+
       } catch (err) {
         ids.appStatus.className = 'card span-12 error';
-        ids.appStatus.textContent = `Could not load the KC Fed CSV. ${err?.message || ''}`;
+        ids.appStatus.textContent = "Error parsing data: " + err.message;
       }
+    },
+    error: function(err) {
+      ids.appStatus.className = 'card span-12 error';
+      ids.appStatus.textContent = "Could not load KC Fed CSV.";
+    }
+  });
+}
     }
 
     attachEvents();
