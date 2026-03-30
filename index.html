@@ -514,7 +514,12 @@
 
       state.monthly = keys.map(k => {
         const kc = kcMap.get(k);
-        const un = unMap.get(k);
+        let un = unMap.get(k);
+
+// Patch for October 2025 missing value
+if (k === "2025-10-01" && (un === null || un === undefined)) {
+  un = 4.4;
+}
         const cbo = cboMonthMap.has(k) ? cboMonthMap.get(k) : null;
         const gapKc = un !== null && kc?.uStar !== null ? un - kc.uStar : null;
         const gapLower = un !== null && kc?.uUpper !== null ? un - kc.uUpper : null;
