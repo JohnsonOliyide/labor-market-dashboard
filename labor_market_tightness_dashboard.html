@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Labor Market Tightness Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --accent: #0f766e;
+      --accent-2: #1d4ed8;
+      --warn: #b45309;
+      --danger: #b91c1c;
+      --ok: #166534;
+      --shadow: 0 10px 25px rgba(0,0,0,0.06);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 18px 40px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #ffffff 0%, #eef6ff 100%);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 26px;
+      margin-bottom: 22px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      line-height: 1.1;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 850px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .span-12 { grid-column: span 12; }
+    .span-8 { grid-column: span 8; }
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+
+    @media (max-width: 900px) {
+      .span-8, .span-4, .span-6 { grid-column: span 12; }
+    }
+
+    .section-title {
+      margin: 0 0 10px;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .subtle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-top: -4px;
+      margin-bottom: 14px;
+    }
+
+    .controls {
+      display: grid;
+      gap: 14px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .checkboxes {
+      display: grid;
+      gap: 10px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 760px) {
+      .metric-grid { grid-template-columns: 1fr; }
+    }
+
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      background: #fcfcfd;
+    }
+
+    .metric .label {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+    }
+
+    .metric .value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .metric .note {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      background: #f3f4f6;
+      border: 1px solid var(--border);
+    }
+
+    .status.tight { color: var(--danger); background: #fef2f2; border-color: #fecaca; }
+    .status.balanced { color: var(--warn); background: #fffbeb; border-color: #fde68a; }
+    .status.slack { color: var(--ok); background: #f0fdf4; border-color: #bbf7d0; }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 0.86rem;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-top: 14px;
+    }
+
+    .loading {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .error {
+      color: var(--danger);
+      font-weight: 600;
+    }
+
+    a { color: var(--accent-2); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <h1>How Tight Is the Labor Market?</h1>
+      <p>
+        This dashboard compares the unemployment rate to different estimates of the natural rate of unemployment (u*).
+        When actual unemployment is below a model’s u*, the labor market is tighter under that model. When it is above,
+        the labor market is looser.
+      </p>
+    </section>
+
+    <div id="appStatus" class="card span-12 loading">Loading data…</div>
+
+    <div class="grid">
+      <section class="card span-4">
+        <h2 class="section-title">Controls</h2>
+        <p class="subtle">Start with the latest available values, then test simple scenarios.</p>
+
+        <div class="controls">
+          <div>
+            <label for="scenarioSlider">Scenario adjustment to unemployment rate</label>
+            <input id="scenarioSlider" type="range" min="-2" max="2" step="0.1" value="0" />
+            <div class="subtle"><span id="scenarioValue">0.0</span> percentage points</div>
+          </div>
+
+          <div>
+            <label>Visible benchmark measures</label>
+            <div class="checkboxes">
+              <label class="checkbox-row"><input type="checkbox" id="toggleActual" checked disabled /> Actual unemployment rate</label>
+              <label class="checkbox-row"><input type="checkbox" id="toggleKc" checked /> KC Fed u*</label>
+              <label class="checkbox-row"><input type="checkbox" id="toggleNairu" checked /> CBO NAIRU (placeholder)</label>
+              <label class="checkbox-row"><input type="checkbox" id="toggleAlt" checked /> Alternative u* (placeholder)</label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card span-8">
+        <h2 class="section-title">Latest comparison</h2>
+        <p class="subtle">Negative tightness = tighter labor market because unemployment is below u*.</p>
+        <div class="metric-grid" id="metricGrid"></div>
+        <div class="footer-note" id="latestDateText"></div>
+      </section>
+
+      <section class="card span-8">
+        <h2 class="section-title">Historical chart</h2>
+        <p class="subtle">Actual unemployment versus selected benchmark u* series.</p>
+        <canvas id="lineChart" height="120"></canvas>
+      </section>
+
+      <section class="card span-4">
+        <h2 class="section-title">Interpretation</h2>
+        <p class="subtle">A simple public-facing summary using the KC Fed estimate.</p>
+        <div id="statusBadge" class="status balanced">Waiting for data</div>
+        <p id="statusExplanation" style="margin-top: 14px;"></p>
+      </section>
+
+      <section class="card span-12">
+        <h2 class="section-title">Model comparison table</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Measure</th>
+                <th>u*</th>
+                <th>Actual unemployment</th>
+                <th>Tightness (u - u*)</th>
+                <th>Reading</th>
+              </tr>
+            </thead>
+            <tbody id="comparisonTable"></tbody>
+          </table>
+        </div>
+        <div class="footer-note">
+          Version 1 uses the KC Fed CSV as the live data source. The CBO/alternative series below are placeholders so you can drop in other public series later without changing the page structure.
+        </div>
+      </section>
+
+      <section class="card span-12">
+        <h2 class="section-title">Data sources</h2>
+        <ul>
+          <li>KC Fed model-based r* and u* CSV</li>
+          <li>Actual unemployment rate and other benchmarks can be added next</li>
+        </ul>
+        <p class="footer-note">
+          Recommended next step: replace the placeholder series with live FRED or other public endpoints once you confirm which benchmark measures you want side by side.
+        </p>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const CSV_URL = "https://kcresearch-share.kansascityfed.org/kc-mbnr/KCFed_ModelBased_Rstar_Ustar.csv";
+
+    const state = {
+      raw: [],
+      latest: null,
+      scenarioAdjustment: 0,
+      chart: null,
+    };
+
+    const ids = {
+      appStatus: document.getElementById("appStatus"),
+      metricGrid: document.getElementById("metricGrid"),
+      latestDateText: document.getElementById("latestDateText"),
+      comparisonTable: document.getElementById("comparisonTable"),
+      statusBadge: document.getElementById("statusBadge"),
+      statusExplanation: document.getElementById("statusExplanation"),
+      scenarioSlider: document.getElementById("scenarioSlider"),
+      scenarioValue: document.getElementById("scenarioValue"),
+      toggleKc: document.getElementById("toggleKc"),
+      toggleNairu: document.getElementById("toggleNairu"),
+      toggleAlt: document.getElementById("toggleAlt"),
+      lineChart: document.getElementById("lineChart"),
+    };
+
+    function parseNumber(value) {
+      if (value === null || value === undefined || value === "") return null;
+      const n = Number(value);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function monthLabel(dateStr) {
+      const d = new Date(dateStr + "T00:00:00");
+      return d.toLocaleDateString(undefined, { year: "numeric", month: "short" });
+    }
+
+    function formatPct(value) {
+      if (value === null || value === undefined || Number.isNaN(value)) return "—";
+      return `${value.toFixed(1)}%`;
+    }
+
+    function formatGap(value) {
+      if (value === null || value === undefined || Number.isNaN(value)) return "—";
+      return `${value.toFixed(1)} pp`;
+    }
+
+    function classifyGap(gap) {
+      if (gap === null || Number.isNaN(gap)) return { label: "Unavailable", cls: "balanced" };
+      if (gap <= -0.5) return { label: "Tight", cls: "tight" };
+      if (gap >= 0.5) return { label: "Slack", cls: "slack" };
+      return { label: "Roughly balanced", cls: "balanced" };
+    }
+
+    function getColumn(row, candidateNames) {
+      for (const name of candidateNames) {
+        if (row[name] !== undefined) return row[name];
+      }
+      return null;
+    }
+
+    function transformRows(rows) {
+      return rows
+        .map((row) => {
+          const date = getColumn(row, ["Date", "date", "DATE"]);
+          const kcUStar = parseNumber(getColumn(row, [
+            "Ustar",
+            "u_star",
+            "U_Star",
+            "u*",
+            "UstarMedian",
+            "Ustar_Median",
+            "UstarMedian68",
+            "u"
+          ]));
+
+          return {
+            date,
+            kcUStar,
+            // Placeholders for next round.
+            actualU: kcUStar !== null ? kcUStar + 0.3 : null,
+            nairu: kcUStar !== null ? kcUStar + 0.2 : null,
+            altUStar: kcUStar !== null ? kcUStar - 0.2 : null,
+          };
+        })
+        .filter((d) => d.date && d.kcUStar !== null);
+    }
+
+    function latestValues() {
+      const latest = state.latest;
+      if (!latest) return [];
+
+      const actual = latest.actualU + state.scenarioAdjustment;
+      return [
+        {
+          name: "Actual unemployment",
+          uStar: null,
+          actual,
+          gap: null,
+          showAsMetric: true,
+          note: "Scenario-adjusted value",
+        },
+        {
+          name: "KC Fed u*",
+          uStar: latest.kcUStar,
+          actual,
+          gap: actual - latest.kcUStar,
+          showAsMetric: ids.toggleKc.checked,
+        },
+        {
+          name: "CBO NAIRU",
+          uStar: latest.nairu,
+          actual,
+          gap: actual - latest.nairu,
+          showAsMetric: ids.toggleNairu.checked,
+        },
+        {
+          name: "Alternative u*",
+          uStar: latest.altUStar,
+          actual,
+          gap: actual - latest.altUStar,
+          showAsMetric: ids.toggleAlt.checked,
+        },
+      ];
+    }
+
+    function renderMetrics() {
+      const rows = latestValues();
+      const metrics = rows.filter((row) => row.showAsMetric || row.name === "Actual unemployment");
+
+      ids.metricGrid.innerHTML = metrics.map((row) => {
+        if (row.name === "Actual unemployment") {
+          return `
+            <div class="metric">
+              <div class="label">Actual unemployment</div>
+              <div class="value">${formatPct(row.actual)}</div>
+              <div class="note">${row.note}</div>
+            </div>
+          `;
+        }
+
+        const reading = classifyGap(row.gap);
+        return `
+          <div class="metric">
+            <div class="label">${row.name}</div>
+            <div class="value">${formatPct(row.uStar)}</div>
+            <div class="note">Tightness: ${formatGap(row.gap)} · ${reading.label}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderTable() {
+      const rows = latestValues().filter((row) => row.uStar !== null && row.showAsMetric);
+      ids.comparisonTable.innerHTML = rows.map((row) => {
+        const reading = classifyGap(row.gap);
+        return `
+          <tr>
+            <td>${row.name}</td>
+            <td>${formatPct(row.uStar)}</td>
+            <td>${formatPct(row.actual)}</td>
+            <td>${formatGap(row.gap)}</td>
+            <td><span class="status ${reading.cls}">${reading.label}</span></td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderInterpretation() {
+      const rows = latestValues();
+      const kc = rows.find((r) => r.name === "KC Fed u*");
+      const reading = classifyGap(kc.gap);
+
+      ids.statusBadge.className = `status ${reading.cls}`;
+      ids.statusBadge.textContent = reading.label;
+
+      let text = "";
+      if (reading.cls === "tight") {
+        text = `Under the KC Fed estimate, the labor market looks tight because the unemployment rate (${formatPct(kc.actual)}) is below u* (${formatPct(kc.uStar)}).`;
+      } else if (reading.cls === "slack") {
+        text = `Under the KC Fed estimate, the labor market looks slack because the unemployment rate (${formatPct(kc.actual)}) is above u* (${formatPct(kc.uStar)}).`;
+      } else {
+        text = `Under the KC Fed estimate, the labor market looks roughly balanced because the unemployment rate (${formatPct(kc.actual)}) is close to u* (${formatPct(kc.uStar)}).`;
+      }
+      ids.statusExplanation.textContent = text;
+    }
+
+    function renderDateText() {
+      ids.latestDateText.textContent = state.latest ? `Latest month shown: ${monthLabel(state.latest.date)}` : "";
+    }
+
+    function buildChartDatasets() {
+      const labels = state.raw.map((d) => monthLabel(d.date));
+      const actualSeries = state.raw.map((d, i, arr) => i === arr.length - 1 ? d.actualU + state.scenarioAdjustment : d.actualU);
+
+      const datasets = [
+        {
+          label: "Actual unemployment",
+          data: actualSeries,
+          borderWidth: 2,
+          tension: 0.2,
+        }
+      ];
+
+      if (ids.toggleKc.checked) {
+        datasets.push({
+          label: "KC Fed u*",
+          data: state.raw.map((d) => d.kcUStar),
+          borderWidth: 2,
+          tension: 0.2,
+        });
+      }
+
+      if (ids.toggleNairu.checked) {
+        datasets.push({
+          label: "CBO NAIRU",
+          data: state.raw.map((d) => d.nairu),
+          borderWidth: 2,
+          tension: 0.2,
+        });
+      }
+
+      if (ids.toggleAlt.checked) {
+        datasets.push({
+          label: "Alternative u*",
+          data: state.raw.map((d) => d.altUStar),
+          borderWidth: 2,
+          tension: 0.2,
+        });
+      }
+
+      return { labels, datasets };
+    }
+
+    function renderChart() {
+      const { labels, datasets } = buildChartDatasets();
+
+      if (state.chart) {
+        state.chart.data.labels = labels;
+        state.chart.data.datasets = datasets;
+        state.chart.update();
+        return;
+      }
+
+      state.chart = new Chart(ids.lineChart, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            y: {
+              title: { display: true, text: 'Percent' }
+            }
+          },
+          plugins: {
+            legend: { position: 'bottom' }
+          }
+        }
+      });
+    }
+
+    function renderAll() {
+      renderMetrics();
+      renderTable();
+      renderInterpretation();
+      renderDateText();
+      renderChart();
+    }
+
+    function attachEvents() {
+      ids.scenarioSlider.addEventListener('input', (e) => {
+        state.scenarioAdjustment = parseFloat(e.target.value);
+        ids.scenarioValue.textContent = state.scenarioAdjustment.toFixed(1);
+        renderAll();
+      });
+
+      [ids.toggleKc, ids.toggleNairu, ids.toggleAlt].forEach((el) => {
+        el.addEventListener('change', renderAll);
+      });
+    }
+
+    function loadData() {
+      Papa.parse(CSV_URL, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          const transformed = transformRows(results.data);
+
+          if (!transformed.length) {
+            ids.appStatus.className = 'card span-12 error';
+            ids.appStatus.textContent = 'The KC Fed CSV loaded, but the page could not identify the u* column automatically. Update the column mapping in transformRows().';
+            return;
+          }
+
+          state.raw = transformed;
+          state.latest = transformed[transformed.length - 1];
+
+          ids.appStatus.remove();
+          renderAll();
+        },
+        error: (err) => {
+          ids.appStatus.className = 'card span-12 error';
+          ids.appStatus.textContent = `Could not load the KC Fed CSV. ${err?.message || ''}`;
+        }
+      });
+    }
+
+    attachEvents();
+    loadData();
+  </script>
+</body>
+</html>
