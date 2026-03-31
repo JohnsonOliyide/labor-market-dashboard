@@ -16,6 +16,7 @@
       --line1: #1d4ed8;
       --line2: #0f766e;
       --line3: #7c3aed;
+      --line4: #111827;
       --soft1: rgba(29, 78, 216, 0.16);
       --soft2: rgba(15, 118, 110, 0.18);
       --soft3: rgba(124, 58, 237, 0.16);
@@ -36,7 +37,7 @@
     }
 
     .container {
-      max-width: 1280px;
+      max-width: 1320px;
       margin: 0 auto;
       padding: 30px 18px 48px;
     }
@@ -58,9 +59,9 @@
     }
 
     .hero p {
-      margin: 0;
+      margin: 0 0 10px;
       color: var(--muted);
-      max-width: 920px;
+      max-width: 1020px;
       font-size: 1rem;
     }
 
@@ -108,15 +109,11 @@
 
     .metric-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 14px;
     }
 
     @media (max-width: 900px) {
-      .metric-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (max-width: 620px) {
       .metric-grid { grid-template-columns: 1fr; }
     }
 
@@ -162,68 +159,73 @@
     .pill.slack { color: var(--ok); background: #f0fdf4; border-color: #bbf7d0; }
     .pill.balanced { color: var(--warn); background: #fff7ed; border-color: #fed7aa; }
 
-    .control-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 10px;
+    .control-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+      align-items: end;
     }
 
-    button.range-btn {
+    .control-group {
+      grid-column: span 3;
+    }
+
+    @media (max-width: 980px) {
+      .control-group { grid-column: span 12; }
+    }
+
+    .control-group label {
+      display: block;
+      font-size: 0.88rem;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    input[type="month"], select, button {
+      width: 100%;
       border: 1px solid var(--border);
       background: #fff;
       color: var(--text);
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-weight: 700;
-      cursor: pointer;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font: inherit;
     }
 
-    button.range-btn.active {
-      background: #e8f0ff;
-      border-color: #b8cdf8;
-    }
-
-    .checkboxes {
-      display: grid;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .checkbox-row {
+    .button-row {
       display: flex;
+      flex-wrap: wrap;
       gap: 10px;
       align-items: center;
-      color: var(--text);
-      font-size: 0.95rem;
     }
 
-    .asof-list {
-      display: grid;
-      gap: 8px;
-      margin-top: 10px;
+    .button-row button {
+      width: auto;
+      cursor: pointer;
+      font-weight: 700;
     }
 
-    .asof-item {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: #fbfdff;
-      font-size: 0.92rem;
-    }
-
-    .asof-item span:last-child {
+    .mini-note {
       color: var(--muted);
-      text-align: right;
+      font-size: 0.84rem;
+      margin-top: 8px;
     }
 
     .chart-wrap {
       position: relative;
-      min-height: 380px;
+      min-height: 420px;
     }
+
+    .std-box, .source-box, .note-box {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: #f8fbff;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .std-box { margin-top: 14px; }
 
     .table-wrap {
       overflow-x: auto;
@@ -249,18 +251,10 @@
       letter-spacing: 0.04em;
     }
 
-    .note-box {
-      padding: 14px 16px;
-      border-radius: 18px;
-      background: #f8fbff;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
-
     .small { font-size: 0.85rem; color: var(--muted); }
     .strong { font-weight: 700; color: var(--text); }
     a { color: var(--line1); }
+    ul { margin: 8px 0 0 18px; }
   </style>
 </head>
 <body>
@@ -268,69 +262,107 @@
     <section class="hero">
       <h1>Labor Market Tightness Dashboard</h1>
       <p>
-        This dashboard compares the unemployment rate with estimates of the natural rate of unemployment. It presents two views:
-        a credible-set approach using the Kansas City Fed estimate and a standardized-gap approach using both the Kansas City Fed estimate and the CBO benchmark.
+        This dashboard studies <span class="strong">labor market tightness</span> using the <span class="strong">unemployment gap</span>, defined as the unemployment rate minus an estimate of the natural rate of unemployment. When unemployment is below the natural rate, the labor market is typically tighter. When unemployment is above the natural rate, the labor market is typically softer.
+      </p>
+      <p>
+        The website presents <span class="strong">two approaches</span>. <span class="strong">Option 1: Credible Set View</span> uses the Kansas City Fed model-based natural rate of unemployment and its <span class="strong">68% credible set</span>. If zero falls inside the unemployment-gap band, the labor market is described as <span class="strong">roughly balanced</span>. <span class="strong">Option 2: Standardized Gap View</span> divides the unemployment gap by the historical standard deviation of each natural-rate measure. In that view, values above +1 indicate slack, values below -1 indicate tightness, and values between -1 and +1 indicate the labor market is <span class="strong">roughly balanced</span>.
+      </p>
+      <p class="small">
+        The Kansas City Fed measure is labeled here as the <span class="strong">Kansas City Fed model-based natural rate of unemployment</span>. The CBO series is labeled as the <span class="strong">noncyclical rate of unemployment</span>.
       </p>
     </section>
 
     <div id="appStatus" class="card span-12 loading">Loading data…</div>
 
     <div class="grid">
+      <section class="card span-12">
+        <h2 class="section-title">Controls</h2>
+        <p class="subtle">Select a custom start month and end month, then update the dashboard. You can also download the data currently shown in each chart.</p>
+        <div class="control-grid">
+          <div class="control-group">
+            <label for="startMonth">Start month</label>
+            <input type="month" id="startMonth" />
+          </div>
+          <div class="control-group">
+            <label for="endMonth">End month</label>
+            <input type="month" id="endMonth" />
+          </div>
+          <div class="control-group">
+            <label for="quickRange">Quick range</label>
+            <select id="quickRange">
+              <option value="custom">Custom selection</option>
+              <option value="24">Last 2 years</option>
+              <option value="60">Last 5 years</option>
+              <option value="120">Last 10 years</option>
+              <option value="full">Full sample</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Actions</label>
+            <div class="button-row">
+              <button id="applyRangeBtn" type="button">Apply range</button>
+              <button id="resetRangeBtn" type="button">Reset</button>
+              <button id="downloadCombinedBtn" type="button">Download displayed data</button>
+            </div>
+          </div>
+        </div>
+        <div class="mini-note" id="rangeNote"></div>
+      </section>
+
       <section class="card span-8">
         <h2 class="section-title">Latest snapshot</h2>
-        <p class="subtle">The latest values and classifications update with the selected date range and comparison month.</p>
+        <p class="subtle">The latest values update with the selected sample window.</p>
         <div id="metricGrid" class="metric-grid"></div>
       </section>
 
       <section class="card span-4">
         <h2 class="section-title">Data timing</h2>
         <p class="subtle">These series do not all update on the same schedule.</p>
-        <div id="asOfBox" class="asof-list"></div>
+        <div id="asOfBox" class="note-box"></div>
       </section>
 
-      <section class="card span-4">
-        <h2 class="section-title">Controls</h2>
-        <p class="subtle">Choose the time window and which benchmark lines you want to show.</p>
-        <div class="control-row" id="rangeButtons">
-          <button class="range-btn active" data-range="24">2Y</button>
-          <button class="range-btn" data-range="60">5Y</button>
-          <button class="range-btn" data-range="120">10Y</button>
-          <button class="range-btn" data-range="full">Full</button>
-        </div>
-        <div class="checkboxes">
-          <label class="checkbox-row"><input type="checkbox" id="toggleUnrate" checked /> Actual unemployment rate</label>
-          <label class="checkbox-row"><input type="checkbox" id="toggleKcLine" checked /> KC Fed u*</label>
-          <label class="checkbox-row"><input type="checkbox" id="toggleKcBand" checked /> KC Fed credible set</label>
-          <label class="checkbox-row"><input type="checkbox" id="toggleCbo" checked /> CBO natural rate</label>
-        </div>
-      </section>
-
-      <section class="card span-8">
-        <h2 class="section-title">KC Fed credible-set view</h2>
-        <p class="subtle">If the credible set for the unemployment gap crosses zero, the labor market is treated as balanced. If the entire gap band is above zero, it is slack. If the entire gap band is below zero, it is tight.</p>
-        <div class="chart-wrap"><canvas id="credibleChart"></canvas></div>
-        <div style="margin-top:14px; display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
-          <span id="credibleBadge" class="pill balanced">Balanced</span>
-          <span id="credibleSummary" class="small"></span>
+      <section class="card span-12">
+        <h2 class="section-title">Natural-rate estimates and unemployment rate</h2>
+        <p class="subtle">This chart compares the unemployment rate with the Kansas City Fed model-based natural rate of unemployment, its 68% credible set, and the CBO noncyclical rate of unemployment.</p>
+        <div class="chart-wrap"><canvas id="levelsChart"></canvas></div>
+        <div class="button-row" style="margin-top:14px;">
+          <button id="downloadLevelsBtn" type="button">Download first chart data</button>
         </div>
       </section>
 
       <section class="card span-12">
-        <h2 class="section-title">Standardized-gap view</h2>
-        <p class="subtle">This scales the unemployment gap by the historical time-series standard deviation of the natural-rate estimate. Values above +1 indicate slack, values below -1 indicate tightness.</p>
+        <h2 class="section-title">Option 1: Credible Set View</h2>
+        <p class="subtle">We compute the unemployment gap using the Kansas City Fed model-based natural rate of unemployment and its 68% credible set. If the full gap band is above zero, the labor market is slack. If the full gap band is below zero, it is tight. If zero falls inside the band, the labor market is roughly balanced.</p>
+        <div class="chart-wrap"><canvas id="credibleChart"></canvas></div>
+        <div style="margin-top:14px; display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+          <span id="credibleBadge" class="pill balanced">Roughly balanced</span>
+          <span id="credibleSummary" class="small"></span>
+        </div>
+        <div class="button-row" style="margin-top:14px;">
+          <button id="downloadCredibleBtn" type="button">Download credible-set chart data</button>
+        </div>
+      </section>
+
+      <section class="card span-12">
+        <h2 class="section-title">Option 2: Standardized Gap View</h2>
+        <p class="subtle">We divide each unemployment gap by the historical standard deviation of the corresponding natural-rate estimate. Values above +1 indicate slack, values below -1 indicate tightness, and values between -1 and +1 indicate the labor market is roughly balanced.</p>
         <div class="chart-wrap"><canvas id="standardizedChart"></canvas></div>
+        <div id="stdValues" class="std-box"></div>
+        <div class="button-row" style="margin-top:14px;">
+          <button id="downloadStandardizedBtn" type="button">Download standardized chart data</button>
+        </div>
       </section>
 
       <section class="card span-6">
         <h2 class="section-title">Latest month comparison</h2>
-        <p class="subtle">The comparison below uses the most recent month available in the aligned monthly dataset.</p>
+        <p class="subtle">The comparison below uses the most recent month available in the selected sample.</p>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
                 <th>Measure</th>
                 <th>Comparison month</th>
-                <th>Gap</th>
+                <th>Value</th>
                 <th>Classification</th>
               </tr>
             </thead>
@@ -344,12 +376,22 @@
         <div class="note-box" id="interpretationNotes"></div>
       </section>
 
-      <section class="card span-12">
-        <h2 class="section-title">Method notes</h2>
+      <section class="card span-6">
+        <h2 class="section-title">Data sources</h2>
+        <div class="source-box">
+          <ul>
+            <li><span class="strong">Kansas City Fed model-based natural rate of unemployment:</span> `KCFed_ModelBased_Rstar_Ustar.csv`</li>
+            <li><span class="strong">Unemployment rate:</span> `UNRATE.csv`</li>
+            <li><span class="strong">CBO noncyclical rate of unemployment:</span> `NROU.csv`</li>
+          </ul>
+          <p class="small">In this dashboard, the quarterly CBO series is repeated across the three months within each quarter to align it with monthly unemployment data.</p>
+        </div>
+      </section>
+
+      <section class="card span-6">
+        <h2 class="section-title">Disclaimer</h2>
         <div class="note-box">
-          <p><span class="strong">KC Fed credible-set approach:</span> We compute the unemployment gap as unemployment minus the KC Fed estimate of u*. We then compute a lower and upper gap using the upper and lower KC Fed credible bounds. If zero lies inside that gap band, the labor market is labeled balanced. If the whole band is above zero, the labor market is labeled slack. If the whole band is below zero, the labor market is labeled tight.</p>
-          <p><span class="strong">Standardized-gap approach:</span> We compute the unemployment gap and divide it by the time-series standard deviation of the relevant natural-rate estimate. This is a descriptive normalization based on historical variability, not a measure of statistical significance.</p>
-          <p><span class="strong">Monthly alignment:</span> The CBO series is quarterly. In this dashboard, each quarterly CBO value is repeated across the three months in the same quarter so it can be compared with monthly unemployment data.</p>
+          The views expressed in this dashboard are those of the author and do not necessarily reflect the views of the Federal Reserve Bank of Kansas City or the Federal Reserve System.
         </div>
       </section>
     </div>
@@ -365,9 +407,14 @@
       unrate: [],
       cba: [],
       monthly: [],
-      viewRange: 24,
+      filtered: [],
+      levelsChart: null,
       credibleChart: null,
       standardizedChart: null,
+      sdKc: null,
+      sdCbo: null,
+      minMonth: null,
+      maxMonth: null,
     };
 
     const ids = {
@@ -378,13 +425,20 @@
       interpretationNotes: document.getElementById("interpretationNotes"),
       credibleBadge: document.getElementById("credibleBadge"),
       credibleSummary: document.getElementById("credibleSummary"),
+      stdValues: document.getElementById("stdValues"),
+      levelsChart: document.getElementById("levelsChart"),
       credibleChart: document.getElementById("credibleChart"),
       standardizedChart: document.getElementById("standardizedChart"),
-      toggleUnrate: document.getElementById("toggleUnrate"),
-      toggleKcLine: document.getElementById("toggleKcLine"),
-      toggleKcBand: document.getElementById("toggleKcBand"),
-      toggleCbo: document.getElementById("toggleCbo"),
-      rangeButtons: document.getElementById("rangeButtons"),
+      startMonth: document.getElementById("startMonth"),
+      endMonth: document.getElementById("endMonth"),
+      quickRange: document.getElementById("quickRange"),
+      applyRangeBtn: document.getElementById("applyRangeBtn"),
+      resetRangeBtn: document.getElementById("resetRangeBtn"),
+      downloadCombinedBtn: document.getElementById("downloadCombinedBtn"),
+      downloadLevelsBtn: document.getElementById("downloadLevelsBtn"),
+      downloadCredibleBtn: document.getElementById("downloadCredibleBtn"),
+      downloadStandardizedBtn: document.getElementById("downloadStandardizedBtn"),
+      rangeNote: document.getElementById("rangeNote"),
     };
 
     function parseNumber(value) {
@@ -404,12 +458,6 @@
       return d.toLocaleDateString(undefined, { year: "numeric", month: "short" });
     }
 
-    function quarterLabel(dateStr) {
-      const d = new Date(dateStr + "T00:00:00");
-      const q = Math.floor(d.getMonth() / 3) + 1;
-      return `${d.getFullYear()} Q${q}`;
-    }
-
     function formatPct(value) {
       if (value === null || value === undefined || Number.isNaN(value)) return "—";
       return `${value.toFixed(1)}%`;
@@ -423,6 +471,10 @@
     function formatZ(value) {
       if (value === null || value === undefined || Number.isNaN(value)) return "—";
       return value.toFixed(2);
+    }
+
+    function monthKey(dateStr) {
+      return dateStr.slice(0, 7);
     }
 
     function stddev(arr) {
@@ -440,40 +492,37 @@
     }
 
     function classifyCredible(rec) {
-      if (!rec) return { label: "Balanced", cls: "balanced" };
-      if (rec.gapLower <= 0 && rec.gapUpper >= 0) return { label: "Balanced", cls: "balanced" };
+      if (!rec) return { label: "Roughly balanced", cls: "balanced" };
+      if (rec.gapLower <= 0 && rec.gapUpper >= 0) return { label: "Roughly balanced", cls: "balanced" };
       if (rec.gapLower > 0 && rec.gapUpper > 0) return { label: "Slack", cls: "slack" };
       if (rec.gapLower < 0 && rec.gapUpper < 0) return { label: "Tight", cls: "tight" };
-      return { label: "Balanced", cls: "balanced" };
+      return { label: "Roughly balanced", cls: "balanced" };
     }
 
     function classifyStandardized(z) {
       if (z === null || Number.isNaN(z)) return "—";
       if (z >= 1) return "Slack";
       if (z <= -1) return "Tight";
-      return "Within ±1 SD";
+      return "Roughly balanced";
     }
 
-function parseKcCsv(csvText) {
-  const lines = csvText.split(/\r?\n/).filter(Boolean);
-  if (lines.length < 3) throw new Error("KC CSV is too short.");
-
-  const dataLines = lines.slice(2);
-
-  return dataLines.map(line => {
-    const row = line.split(",");
-    return {
-      date: cleanString(row[0]),
-      rStar: parseNumber(row[1]),
-      rLower: parseNumber(row[2]),
-      rUpper: parseNumber(row[3]),
-      uStar: parseNumber(row[4]),
-      uLower: parseNumber(row[5]),
-      uUpper: parseNumber(row[6]),
-    };
-  }).filter(d => d.date && d.uStar !== null);
-}
-
+    function parseKcCsv(csvText) {
+      const lines = csvText.split(/\r?\n/).filter(Boolean);
+      if (lines.length < 3) throw new Error("KC CSV is too short.");
+      const dataLines = lines.slice(2);
+      return dataLines.map(line => {
+        const row = line.split(",");
+        return {
+          date: cleanString(row[0]),
+          rStar: parseNumber(row[1]),
+          rLower: parseNumber(row[2]),
+          rUpper: parseNumber(row[3]),
+          uStar: parseNumber(row[4]),
+          uLower: parseNumber(row[5]),
+          uUpper: parseNumber(row[6]),
+        };
+      }).filter(d => d.date && d.uStar !== null);
+    }
 
     function parseFredCsv(csvText) {
       const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
@@ -486,75 +535,64 @@ function parseKcCsv(csvText) {
       })).filter(d => d.date && d.value !== null);
     }
 
-    function monthKey(dateStr) {
-      return dateStr.slice(0, 7);
-    }
-
     function expandQuarterlyToMonthly(cboSeries) {
-  const map = new Map();
-
-  cboSeries.forEach(rec => {
-    const base = new Date(rec.date + "T00:00:00");
-
-    for (let i = 0; i < 3; i++) {
-      const d = new Date(base.getFullYear(), base.getMonth() + i, 1);
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, "0");
-      map.set(`${year}-${month}`, rec.value);
+      const map = new Map();
+      cboSeries.forEach(rec => {
+        const base = new Date(rec.date + "T00:00:00");
+        for (let i = 0; i < 3; i++) {
+          const d = new Date(base.getFullYear(), base.getMonth() + i, 1);
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, "0");
+          map.set(`${year}-${month}`, rec.value);
+        }
+      });
+      return map;
     }
-  });
-
-  return map;
-}
 
     function buildMonthlyDataset() {
-  const kcMap = new Map(state.kc.map(d => [monthKey(d.date), d]));
-  const unMap = new Map(state.unrate.map(d => [monthKey(d.date), d.value]));
-  const cboMonthMap = expandQuarterlyToMonthly(state.cba);
+      const kcMap = new Map(state.kc.map(d => [monthKey(d.date), d]));
+      const unMap = new Map(state.unrate.map(d => [monthKey(d.date), d.value]));
+      const cboMonthMap = expandQuarterlyToMonthly(state.cba);
+      const keys = [...kcMap.keys()].sort();
 
-  // Start from the earliest KC Fed u* month
-  const keys = [...kcMap.keys()].sort();
+      state.sdKc = stddev(state.kc.map(d => d.uStar));
+      state.sdCbo = stddev(state.cba.map(d => d.value));
 
-  const sdKc = stddev(state.kc.map(d => d.uStar));
-  const sdCbo = stddev(state.cba.map(d => d.value));
+      state.monthly = keys.map(k => {
+        const kc = kcMap.get(k);
+        let un = unMap.has(k) ? unMap.get(k) : null;
+        if (k === "2025-10" && (un === null || un === undefined || Number.isNaN(un))) {
+          un = 4.4;
+        }
+        const cbo = cboMonthMap.has(k) ? cboMonthMap.get(k) : null;
+        const gapKc = (un !== null && kc?.uStar !== null) ? un - kc.uStar : null;
+        const gapLower = (un !== null && kc?.uUpper !== null) ? un - kc.uUpper : null;
+        const gapUpper = (un !== null && kc?.uLower !== null) ? un - kc.uLower : null;
+        const gapCbo = (un !== null && cbo !== null) ? un - cbo : null;
 
-  state.monthly = keys.map(k => {
-    const kc = kcMap.get(k);
-    let un = unMap.has(k) ? unMap.get(k) : null;
+        return {
+          date: `${k}-01`,
+          unemployment: un,
+          kcUStar: kc?.uStar ?? null,
+          kcLower: kc?.uLower ?? null,
+          kcUpper: kc?.uUpper ?? null,
+          cboUStar: cbo,
+          gapKc,
+          gapLower,
+          gapUpper,
+          gapCbo,
+          zKc: (state.sdKc && gapKc !== null) ? gapKc / state.sdKc : null,
+          zCbo: (state.sdCbo && gapCbo !== null) ? gapCbo / state.sdCbo : null,
+        };
+      }).filter(d => d.kcUStar !== null && d.unemployment !== null);
 
-    // Patch missing October 2025 unemployment value
-    if (k === "2025-10" && (un === null || un === undefined || Number.isNaN(un))) {
-      un = 4.4;
+      state.minMonth = state.monthly[0]?.date.slice(0, 7) ?? null;
+      state.maxMonth = state.monthly[state.monthly.length - 1]?.date.slice(0, 7) ?? null;
+      state.filtered = [...state.monthly];
     }
 
-    const cbo = cboMonthMap.has(k) ? cboMonthMap.get(k) : null;
-
-    const gapKc = (un !== null && kc?.uStar !== null) ? un - kc.uStar : null;
-    const gapLower = (un !== null && kc?.uUpper !== null) ? un - kc.uUpper : null;
-    const gapUpper = (un !== null && kc?.uLower !== null) ? un - kc.uLower : null;
-    const gapCbo = (un !== null && cbo !== null) ? un - cbo : null;
-
-    return {
-      date: `${k}-01`,
-      unemployment: un,
-      kcUStar: kc?.uStar ?? null,
-      kcLower: kc?.uLower ?? null,
-      kcUpper: kc?.uUpper ?? null,
-      cboUStar: cbo,
-      gapKc,
-      gapLower,
-      gapUpper,
-      gapCbo,
-      zKc: (sdKc && gapKc !== null) ? gapKc / sdKc : null,
-      zCbo: (sdCbo && gapCbo !== null) ? gapCbo / sdCbo : null,
-    };
-  }).filter(d => d.kcUStar !== null && d.unemployment !== null);
-}
     function getDisplayedSeries() {
-      const all = state.monthly;
-      if (!all.length) return [];
-      if (state.viewRange === "full") return all;
-      return all.slice(-state.viewRange);
+      return state.filtered;
     }
 
     function latestRecord() {
@@ -565,12 +603,11 @@ function parseKcCsv(csvText) {
     function renderMetrics() {
       const latest = latestRecord();
       if (!latest) return;
-      const cred = classifyCredible(latest);
       ids.metricGrid.innerHTML = `
         <div class="metric">
           <div class="label">Comparison month</div>
           <div class="value">${monthLabel(latest.date)}</div>
-          <div class="note">Latest aligned monthly observation</div>
+          <div class="note">Latest observation in the selected sample</div>
         </div>
         <div class="metric">
           <div class="label">Unemployment rate</div>
@@ -578,14 +615,9 @@ function parseKcCsv(csvText) {
           <div class="note">Actual monthly unemployment rate</div>
         </div>
         <div class="metric">
-          <div class="label">KC Fed u*</div>
+          <div class="label">Kansas City Fed model-based natural rate of unemployment</div>
           <div class="value">${formatPct(latest.kcUStar)}</div>
-          <div class="note">68% set: ${formatPct(latest.kcLower)} to ${formatPct(latest.kcUpper)}</div>
-        </div>
-        <div class="metric">
-          <div class="label">Credible-set classification</div>
-          <div class="value">${cred.label}</div>
-          <div class="note">Gap band: ${formatGap(latest.gapLower)} to ${formatGap(latest.gapUpper)}</div>
+          <div class="note">68% credible set: ${formatPct(latest.kcLower)} to ${formatPct(latest.kcUpper)}</div>
         </div>
       `;
     }
@@ -593,11 +625,9 @@ function parseKcCsv(csvText) {
     function renderAsOf() {
       const kcDate = lastValidDate(state.kc, "uStar");
       const unDate = lastValidDate(state.unrate, "value");
-      const cboDate = lastValidDate(state.cba, "value");
       ids.asOfBox.innerHTML = `
-        <div class="asof-item"><span>KC Fed u*</span><span>${kcDate ? monthLabel(kcDate) : "—"}</span></div>
-        <div class="asof-item"><span>Unemployment rate</span><span>${unDate ? monthLabel(unDate) : "—"}</span></div>
-        <div class="asof-item"><span>CBO natural rate</span><span>${cboDate ? quarterLabel(cboDate) : "—"}</span></div>
+        <div><span class="strong">Kansas City Fed model-based natural rate of unemployment:</span> ${kcDate ? monthLabel(kcDate) : "—"}</div>
+        <div style="margin-top:8px;"><span class="strong">Unemployment rate:</span> ${unDate ? monthLabel(unDate) : "—"}</div>
       `;
     }
 
@@ -607,7 +637,7 @@ function parseKcCsv(csvText) {
       const cred = classifyCredible(latest);
       ids.credibleBadge.className = `pill ${cred.cls}`;
       ids.credibleBadge.textContent = cred.label;
-      ids.credibleSummary.textContent = `For ${monthLabel(latest.date)}, the KC Fed unemployment gap is ${formatGap(latest.gapKc)}, with a credible-set range from ${formatGap(latest.gapLower)} to ${formatGap(latest.gapUpper)}.`;
+      ids.credibleSummary.textContent = `For ${monthLabel(latest.date)}, the Kansas City Fed unemployment gap is ${formatGap(latest.gapKc)}, with a 68% credible-set gap range from ${formatGap(latest.gapLower)} to ${formatGap(latest.gapUpper)}.`;
     }
 
     function renderComparisonTable() {
@@ -616,19 +646,19 @@ function parseKcCsv(csvText) {
       const cred = classifyCredible(latest);
       ids.comparisonTable.innerHTML = `
         <tr>
-          <td>KC Fed credible-set approach</td>
+          <td>Kansas City Fed unemployment gap</td>
           <td>${monthLabel(latest.date)}</td>
           <td>${formatGap(latest.gapKc)}</td>
           <td>${cred.label}</td>
         </tr>
         <tr>
-          <td>KC Fed standardized gap</td>
+          <td>Kansas City Fed standardized gap</td>
           <td>${monthLabel(latest.date)}</td>
           <td>${formatZ(latest.zKc)}</td>
           <td>${classifyStandardized(latest.zKc)}</td>
         </tr>
         <tr>
-          <td>CBO standardized gap</td>
+          <td>CBO unemployment gap</td>
           <td>${monthLabel(latest.date)}</td>
           <td>${formatZ(latest.zCbo)}</td>
           <td>${classifyStandardized(latest.zCbo)}</td>
@@ -641,9 +671,16 @@ function parseKcCsv(csvText) {
       if (!latest) return;
       const cred = classifyCredible(latest);
       ids.interpretationNotes.innerHTML = `
-        <p><span class="strong">KC credible-set view:</span> For ${monthLabel(latest.date)}, the labor market is classified as <span class="strong">${cred.label.toLowerCase()}</span> because the credible set for the unemployment gap runs from <span class="strong">${formatGap(latest.gapLower)}</span> to <span class="strong">${formatGap(latest.gapUpper)}</span>.</p>
-        <p><span class="strong">KC standardized view:</span> The KC Fed standardized gap is <span class="strong">${formatZ(latest.zKc)}</span>, which is classified as <span class="strong">${classifyStandardized(latest.zKc).toLowerCase()}</span>.</p>
-        <p><span class="strong">CBO standardized view:</span> The CBO standardized gap is <span class="strong">${formatZ(latest.zCbo)}</span>. The CBO series is quarterly and is repeated within each quarter for monthly comparison.</p>
+        <p><span class="strong">Option 1: Credible Set View.</span> For ${monthLabel(latest.date)}, the labor market is classified as <span class="strong">${cred.label.toLowerCase()}</span> because the 68% credible-set unemployment-gap band runs from <span class="strong">${formatGap(latest.gapLower)}</span> to <span class="strong">${formatGap(latest.gapUpper)}</span>.</p>
+        <p><span class="strong">Option 2: Standardized Gap View.</span> The Kansas City Fed standardized gap is <span class="strong">${formatZ(latest.zKc)}</span>, while the CBO unemployment gap standardized by the historical standard deviation of the CBO measure is <span class="strong">${formatZ(latest.zCbo)}</span>.</p>
+        <p><span class="strong">Reading the sign.</span> Positive unemployment gaps indicate softer labor market conditions. Negative unemployment gaps indicate tighter labor market conditions.</p>
+      `;
+    }
+
+    function renderStdValues() {
+      ids.stdValues.innerHTML = `
+        <div><span class="strong">Historical standard deviation used for the Kansas City Fed measure:</span> ${state.sdKc ? state.sdKc.toFixed(3) : "—"}</div>
+        <div style="margin-top:8px;"><span class="strong">Historical standard deviation used for the CBO measure:</span> ${state.sdCbo ? state.sdCbo.toFixed(3) : "—"}</div>
       `;
     }
 
@@ -651,50 +688,118 @@ function parseKcCsv(csvText) {
       return series.map(d => monthLabel(d.date));
     }
 
+    function renderLevelsChart() {
+      const shown = getDisplayedSeries();
+      const labels = displayedLabels(shown);
+      const datasets = [
+        {
+          label: "Unemployment rate",
+          data: shown.map(d => d.unemployment),
+          borderColor: "#111827",
+          backgroundColor: "#111827",
+          borderWidth: 2.4,
+          pointRadius: 0,
+          tension: 0.18,
+        },
+        {
+          label: "Kansas City Fed 68% credible set lower",
+          data: shown.map(d => d.kcLower),
+          borderColor: "rgba(0,0,0,0)",
+          pointRadius: 0,
+          tension: 0.18,
+          fill: false,
+        },
+        {
+          label: "Kansas City Fed 68% credible set",
+          data: shown.map(d => d.kcUpper),
+          borderColor: "rgba(0,0,0,0)",
+          backgroundColor: "rgba(29,78,216,0.18)",
+          pointRadius: 0,
+          tension: 0.18,
+          fill: '-1',
+        },
+        {
+          label: "Kansas City Fed model-based natural rate of unemployment",
+          data: shown.map(d => d.kcUStar),
+          borderColor: "#1d4ed8",
+          backgroundColor: "#1d4ed8",
+          borderWidth: 2.5,
+          pointRadius: 0,
+          tension: 0.18,
+        },
+        {
+          label: "CBO noncyclical rate of unemployment",
+          data: shown.map(d => d.cboUStar),
+          borderColor: "#7c3aed",
+          backgroundColor: "#7c3aed",
+          borderWidth: 2.3,
+          pointRadius: 0,
+          tension: 0.18,
+        }
+      ];
+
+      if (state.levelsChart) {
+        state.levelsChart.data.labels = labels;
+        state.levelsChart.data.datasets = datasets;
+        state.levelsChart.update();
+        return;
+      }
+
+      state.levelsChart = new Chart(ids.levelsChart, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { position: 'bottom' },
+            tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatPct(ctx.raw)}` } }
+          },
+          scales: { y: { title: { display: true, text: 'Percent' } } }
+        }
+      });
+    }
+
     function renderCredibleChart() {
       const shown = getDisplayedSeries();
       const labels = displayedLabels(shown);
-      const datasets = [];
-
-      if (ids.toggleKcBand.checked) {
-        datasets.push({
-          label: "KC gap lower",
+      const datasets = [
+        {
+          label: "68% credible-set gap lower",
           data: shown.map(d => d.gapLower),
           borderColor: "rgba(0,0,0,0)",
           pointRadius: 0,
           tension: 0.18,
           fill: false,
-        });
-        datasets.push({
-          label: "KC credible band",
+        },
+        {
+          label: "68% credible-set gap band",
           data: shown.map(d => d.gapUpper),
           borderColor: "rgba(0,0,0,0)",
           backgroundColor: "rgba(29,78,216,0.18)",
           pointRadius: 0,
           tension: 0.18,
           fill: '-1',
-        });
-      }
-
-      datasets.push({
-        label: "KC unemployment gap",
-        data: shown.map(d => d.gapKc),
-        borderColor: "#1d4ed8",
-        backgroundColor: "#1d4ed8",
-        borderWidth: 2.5,
-        pointRadius: 0,
-        tension: 0.18,
-      });
-
-      datasets.push({
-        label: "Zero line",
-        data: shown.map(() => 0),
-        borderColor: "#9ca3af",
-        borderDash: [6, 6],
-        borderWidth: 1.5,
-        pointRadius: 0,
-        tension: 0,
-      });
+        },
+        {
+          label: "Kansas City Fed unemployment gap",
+          data: shown.map(d => d.gapKc),
+          borderColor: "#1d4ed8",
+          backgroundColor: "#1d4ed8",
+          borderWidth: 2.5,
+          pointRadius: 0,
+          tension: 0.18,
+        },
+        {
+          label: "Zero line",
+          data: shown.map(() => 0),
+          borderColor: "#111827",
+          borderWidth: 1.8,
+          pointRadius: 0,
+          tension: 0,
+        }
+      ];
 
       if (state.credibleChart) {
         state.credibleChart.data.labels = labels;
@@ -712,19 +817,9 @@ function parseKcCsv(csvText) {
           interaction: { mode: 'index', intersect: false },
           plugins: {
             legend: { position: 'bottom' },
-            tooltip: {
-              callbacks: {
-                label: function(ctx) {
-                  return `${ctx.dataset.label}: ${formatGap(ctx.raw)}`;
-                }
-              }
-            }
+            tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatGap(ctx.raw)}` } }
           },
-          scales: {
-            y: {
-              title: { display: true, text: 'Percentage points' }
-            }
-          }
+          scales: { y: { title: { display: true, text: 'Percentage points' } } }
         }
       });
     }
@@ -732,58 +827,52 @@ function parseKcCsv(csvText) {
     function renderStandardizedChart() {
       const shown = getDisplayedSeries();
       const labels = displayedLabels(shown);
-      const datasets = [];
-
-      if (ids.toggleKcLine.checked) {
-        datasets.push({
-          label: "KC standardized gap",
+      const datasets = [
+        {
+          label: "Kansas City Fed standardized gap",
           data: shown.map(d => d.zKc),
           borderColor: "#0f766e",
           backgroundColor: "#0f766e",
           borderWidth: 2.5,
           pointRadius: 0,
           tension: 0.18,
-        });
-      }
-
-      if (ids.toggleCbo.checked) {
-        datasets.push({
-          label: "CBO standardized gap",
+        },
+        {
+          label: "CBO unemployment gap standardized by its natural-rate standard deviation",
           data: shown.map(d => d.zCbo),
           borderColor: "#7c3aed",
           backgroundColor: "#7c3aed",
           borderWidth: 2.5,
           pointRadius: 0,
           tension: 0.18,
-        });
-      }
-
-      datasets.push({
-        label: "+1 threshold",
-        data: shown.map(() => 1),
-        borderColor: "#9ca3af",
-        borderDash: [6, 6],
-        borderWidth: 1.4,
-        pointRadius: 0,
-        tension: 0,
-      });
-      datasets.push({
-        label: "-1 threshold",
-        data: shown.map(() => -1),
-        borderColor: "#9ca3af",
-        borderDash: [6, 6],
-        borderWidth: 1.4,
-        pointRadius: 0,
-        tension: 0,
-      });
-      datasets.push({
-        label: "Zero line",
-        data: shown.map(() => 0),
-        borderColor: "#cbd5e1",
-        borderWidth: 1.2,
-        pointRadius: 0,
-        tension: 0,
-      });
+        },
+        {
+          label: "+1 threshold",
+          data: shown.map(() => 1),
+          borderColor: "#9ca3af",
+          borderDash: [6, 6],
+          borderWidth: 1.4,
+          pointRadius: 0,
+          tension: 0,
+        },
+        {
+          label: "-1 threshold",
+          data: shown.map(() => -1),
+          borderColor: "#9ca3af",
+          borderDash: [6, 6],
+          borderWidth: 1.4,
+          pointRadius: 0,
+          tension: 0,
+        },
+        {
+          label: "Zero line",
+          data: shown.map(() => 0),
+          borderColor: "#000000",
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0,
+        }
+      ];
 
       if (state.standardizedChart) {
         state.standardizedChart.data.labels = labels;
@@ -801,19 +890,9 @@ function parseKcCsv(csvText) {
           interaction: { mode: 'index', intersect: false },
           plugins: {
             legend: { position: 'bottom' },
-            tooltip: {
-              callbacks: {
-                label: function(ctx) {
-                  return `${ctx.dataset.label}: ${formatZ(ctx.raw)}`;
-                }
-              }
-            }
+            tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatZ(ctx.raw)}` } }
           },
-          scales: {
-            y: {
-              title: { display: true, text: 'Standard deviations' }
-            }
-          }
+          scales: { y: { title: { display: true, text: 'Standard deviations' } } }
         }
       });
     }
@@ -824,23 +903,125 @@ function parseKcCsv(csvText) {
       renderCredibleSummary();
       renderComparisonTable();
       renderNotes();
+      renderStdValues();
+      renderLevelsChart();
       renderCredibleChart();
       renderStandardizedChart();
+      updateRangeNote();
+    }
+
+    function updateRangeNote() {
+      const shown = getDisplayedSeries();
+      if (!shown.length) {
+        ids.rangeNote.textContent = 'No observations available for the selected range.';
+        return;
+      }
+      ids.rangeNote.textContent = `Currently showing ${monthLabel(shown[0].date)} through ${monthLabel(shown[shown.length - 1].date)} (${shown.length} monthly observations).`;
+    }
+
+    function filterByRange(startMonth, endMonth) {
+      state.filtered = state.monthly.filter(d => {
+        const m = d.date.slice(0, 7);
+        return m >= startMonth && m <= endMonth;
+      });
+      if (!state.filtered.length) {
+        throw new Error('The selected range does not contain any observations.');
+      }
+    }
+
+    function applyQuickRange(value) {
+      if (!state.monthly.length) return;
+      if (value === 'full') {
+        ids.startMonth.value = state.minMonth;
+        ids.endMonth.value = state.maxMonth;
+        filterByRange(state.minMonth, state.maxMonth);
+        renderAll();
+        return;
+      }
+      if (value === 'custom') return;
+      const n = Number(value);
+      const slice = state.monthly.slice(-n);
+      const start = slice[0].date.slice(0, 7);
+      const end = slice[slice.length - 1].date.slice(0, 7);
+      ids.startMonth.value = start;
+      ids.endMonth.value = end;
+      filterByRange(start, end);
+      renderAll();
+    }
+
+    function downloadCsv(filename, rows) {
+      const csv = Papa.unparse(rows);
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    function currentCombinedRows() {
+      return getDisplayedSeries().map(d => ({
+        date: d.date,
+        unemployment_rate: d.unemployment,
+        kc_fed_model_based_natural_rate_of_unemployment: d.kcUStar,
+        kc_fed_68pct_lower: d.kcLower,
+        kc_fed_68pct_upper: d.kcUpper,
+        cbo_noncyclical_rate_of_unemployment: d.cboUStar,
+        kc_unemployment_gap: d.gapKc,
+        kc_gap_lower: d.gapLower,
+        kc_gap_upper: d.gapUpper,
+        cbo_unemployment_gap: d.gapCbo,
+        kc_standardized_gap: d.zKc,
+        cbo_standardized_gap: d.zCbo,
+      }));
     }
 
     function attachEvents() {
-      ids.rangeButtons.querySelectorAll('.range-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          ids.rangeButtons.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          state.viewRange = btn.dataset.range === 'full' ? 'full' : Number(btn.dataset.range);
+      ids.applyRangeBtn.addEventListener('click', () => {
+        try {
+          const start = ids.startMonth.value || state.minMonth;
+          const end = ids.endMonth.value || state.maxMonth;
+          if (start > end) throw new Error('Start month must be earlier than or equal to end month.');
+          ids.quickRange.value = 'custom';
+          filterByRange(start, end);
           renderAll();
-        });
+        } catch (err) {
+          alert(err.message);
+        }
       });
 
-      [ids.toggleUnrate, ids.toggleKcLine, ids.toggleKcBand, ids.toggleCbo].forEach(el => {
-        el.addEventListener('change', renderAll);
+      ids.resetRangeBtn.addEventListener('click', () => {
+        ids.quickRange.value = 'full';
+        ids.startMonth.value = state.minMonth;
+        ids.endMonth.value = state.maxMonth;
+        filterByRange(state.minMonth, state.maxMonth);
+        renderAll();
       });
+
+      ids.quickRange.addEventListener('change', (e) => applyQuickRange(e.target.value));
+      ids.downloadCombinedBtn.addEventListener('click', () => downloadCsv('labor_market_tightness_displayed_data.csv', currentCombinedRows()));
+      ids.downloadLevelsBtn.addEventListener('click', () => downloadCsv('chart1_natural_rate_and_unemployment.csv', currentCombinedRows().map(d => ({
+        date: d.date,
+        unemployment_rate: d.unemployment_rate,
+        kc_fed_model_based_natural_rate_of_unemployment: d.kc_fed_model_based_natural_rate_of_unemployment,
+        kc_fed_68pct_lower: d.kc_fed_68pct_lower,
+        kc_fed_68pct_upper: d.kc_fed_68pct_upper,
+        cbo_noncyclical_rate_of_unemployment: d.cbo_noncyclical_rate_of_unemployment,
+      }))));
+      ids.downloadCredibleBtn.addEventListener('click', () => downloadCsv('chart2_credible_set_view.csv', currentCombinedRows().map(d => ({
+        date: d.date,
+        kc_unemployment_gap: d.kc_unemployment_gap,
+        kc_gap_lower: d.kc_gap_lower,
+        kc_gap_upper: d.kc_gap_upper,
+      }))));
+      ids.downloadStandardizedBtn.addEventListener('click', () => downloadCsv('chart3_standardized_gap_view.csv', currentCombinedRows().map(d => ({
+        date: d.date,
+        kc_standardized_gap: d.kc_standardized_gap,
+        cbo_standardized_gap: d.cbo_standardized_gap,
+      }))));
     }
 
     async function fetchText(url) {
@@ -849,45 +1030,42 @@ function parseKcCsv(csvText) {
       return response.text();
     }
 
-    
-async function loadAllData() {
-  try {
-    ids.appStatus.textContent = "Loading KC...";
-    const kcText = await fetchText(KC_CSV_URL);
+    async function loadAllData() {
+      try {
+        ids.appStatus.textContent = 'Loading KC...';
+        const kcText = await fetchText(KC_CSV_URL);
+        ids.appStatus.textContent = 'Loading UNRATE...';
+        const unText = await fetchText(UNRATE_CSV_URL);
+        ids.appStatus.textContent = 'Loading NROU...';
+        const cboText = await fetchText(NROU_CSV_URL);
+        ids.appStatus.textContent = 'Parsing KC...';
+        state.kc = parseKcCsv(kcText);
+        ids.appStatus.textContent = 'Parsing UNRATE...';
+        state.unrate = parseFredCsv(unText);
+        ids.appStatus.textContent = 'Parsing NROU...';
+        state.cba = parseFredCsv(cboText);
+        ids.appStatus.textContent = 'Building monthly dataset...';
+        buildMonthlyDataset();
 
-    ids.appStatus.textContent = "Loading UNRATE...";
-    const unText = await fetchText(UNRATE_CSV_URL);
+        if (!state.monthly.length) {
+          throw new Error('No aligned monthly observations were created.');
+        }
 
-    ids.appStatus.textContent = "Loading NROU...";
-    const cboText = await fetchText(NROU_CSV_URL);
+        ids.startMonth.min = state.minMonth;
+        ids.startMonth.max = state.maxMonth;
+        ids.endMonth.min = state.minMonth;
+        ids.endMonth.max = state.maxMonth;
+        ids.startMonth.value = state.minMonth;
+        ids.endMonth.value = state.maxMonth;
+        ids.quickRange.value = 'full';
 
-    ids.appStatus.textContent = "Parsing KC...";
-    state.kc = parseKcCsv(kcText);
-
-    ids.appStatus.textContent = "Parsing UNRATE...";
-    state.unrate = parseFredCsv(unText);
-
-    ids.appStatus.textContent = "Parsing NROU...";
-    state.cba = parseFredCsv(cboText);
-
-    ids.appStatus.textContent = "Building monthly dataset...";
-    buildMonthlyDataset();
-
-    ids.appStatus.textContent = "Monthly observations: " + state.monthly.length;
-
-    if (!state.monthly.length) {
-      throw new Error("No aligned monthly observations were created.");
+        renderAll();
+        ids.appStatus.remove();
+      } catch (err) {
+        ids.appStatus.className = 'card span-12 error';
+        ids.appStatus.textContent = 'ERROR: ' + err.message;
+      }
     }
-
-    ids.appStatus.textContent = "Rendering...";
-    renderAll();
-
-    ids.appStatus.remove();
-  } catch (err) {
-    ids.appStatus.className = "card span-12 error";
-    ids.appStatus.textContent = "ERROR: " + err.message;
-  }
-}
 
     attachEvents();
     loadAllData();
