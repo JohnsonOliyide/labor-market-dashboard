@@ -265,7 +265,7 @@
         This dashboard studies <span class="strong">labor market tightness</span> using the <span class="strong">unemployment gap</span>, defined as the unemployment rate minus an estimate of the natural rate of unemployment. When unemployment is below the natural rate, the labor market is typically tighter. When unemployment is above the natural rate, the labor market is typically softer.
       </p>
       <p>
-        The website presents <span class="strong">two approaches</span>. <span class="strong">Option 1: Credible Set View</span> uses the Kansas City Fed model-based natural rate of unemployment and its <span class="strong">68% credible set</span>. If zero falls inside the unemployment-gap band, the labor market is described as <span class="strong">roughly balanced</span>. <span class="strong">Option 2: Standardized Gap View</span> divides the unemployment gap by the historical standard deviation of each natural-rate measure. In that view, values above +1 indicate slack, values below -1 indicate tightness, and values between -1 and +1 indicate the labor market is <span class="strong">roughly balanced</span>.
+        The website presents <span class="strong">three approaches</span>. <span class="strong">Option 1: Credible Set View</span> uses the Kansas City Fed model-based natural rate of unemployment and its <span class="strong">68% credible set</span>. If zero falls inside the unemployment-gap band, the labor market is described as <span class="strong">roughly balanced</span>. <span class="strong">Option 2: Standardized Gap View</span> divides the unemployment gap by the historical standard deviation of each natural-rate measure. <span class="strong">Option 3: Kansas City Fed Standardized Gap View</span> serves as a robustness check by dividing the Kansas City Fed unemployment gap by the sample standard deviation of the Kansas City Fed natural-rate estimate over the displayed date window. In that view, values above +1 indicate slack, values below -1 indicate tightness, and values between -1 and +1 indicate the labor market is <span class="strong">roughly balanced</span>.
       </p>
       <p class="small">
         The Kansas City Fed measure is labeled here as the <span class="strong">Kansas City Fed model-based natural rate of unemployment</span>. The CBO series is labeled as the <span class="strong">noncyclical rate of unemployment</span>.
@@ -354,6 +354,16 @@
         </div>
       </section>
 
+      <section class="card span-12">
+        <h2 class="section-title">Option 3: Kansas City Fed Standardized Gap View (Sample SD Robustness Check)</h2>
+        <p class="subtle">This robustness chart divides the Kansas City Fed unemployment gap by the sample standard deviation of the Kansas City Fed natural-rate estimate over the displayed date window. Values above +1 indicate slack, values below -1 indicate tightness, and values between -1 and +1 indicate the labor market is roughly balanced.</p>
+        <div class="chart-wrap"><canvas id="robustnessChart"></canvas></div>
+        <div id="robustnessSdInfoBox" class="note-box" style="margin-top:14px;"></div>
+        <div class="button-row" style="margin-top:14px;">
+          <button id="downloadRobustnessBtn" type="button">Download robustness chart data</button>
+        </div>
+      </section>
+
       <section class="card span-6">
         <h2 class="section-title">Latest month comparison</h2>
         <p class="subtle">The comparison below uses the most recent month available in the selected sample.</p>
@@ -411,11 +421,12 @@
   </div>
 </section>
 
-<section class="card span-12">
+
+<section class="card span-6">
   <h2 class="section-title">About</h2>
   <div class="note-box">
-    
-    <p><span class="strong">Author:</span> Johnson Oliyide</p>
+
+    <p><span class="strong">Author:</span> <a href="YOUR_WEBSITE_URL_HERE" target="_blank" rel="noopener noreferrer">Johnson Oliyide</a></p>
     <p class="small">Research Associate, Federal Reserve Bank of Kansas City</p>
 
     <p>
@@ -449,6 +460,7 @@
       levelsChart: null,
       credibleChart: null,
       standardizedChart: null,
+      robustnessChart: null,
       sdKc: null,
       sdCbo: null,
       minMonth: null,
@@ -467,7 +479,9 @@
       levelsChart: document.getElementById("levelsChart"),
       credibleChart: document.getElementById("credibleChart"),
       standardizedChart: document.getElementById("standardizedChart"),
+      robustnessChart: document.getElementById("robustnessChart"),
       sdInfoBox: document.getElementById("sdInfoBox"),
+      robustnessSdInfoBox: document.getElementById("robustnessSdInfoBox"),
       startMonth: document.getElementById("startMonth"),
       endMonth: document.getElementById("endMonth"),
       quickRange: document.getElementById("quickRange"),
@@ -477,6 +491,7 @@
       downloadLevelsBtn: document.getElementById("downloadLevelsBtn"),
       downloadCredibleBtn: document.getElementById("downloadCredibleBtn"),
       downloadStandardizedBtn: document.getElementById("downloadStandardizedBtn"),
+      downloadRobustnessBtn: document.getElementById("downloadRobustnessBtn"),
       rangeNote: document.getElementById("rangeNote"),
     };
 
@@ -594,8 +609,8 @@
       const cboMonthMap = expandQuarterlyToMonthly(state.cba);
       const keys = [...kcMap.keys()].sort();
 
-      const sdKc = stddev(state.kc.map(d => d.uStar));
-      const sdCbo = stddev(state.cba.map(d => d.value));
+      state.sdKc = stddev(state.kc.map(d => d.uStar));
+      state.sdCbo = stddev(state.cba.map(d => d.value));
 
       state.monthly = keys.map(k => {
         const kc = kcMap.get(k);
@@ -634,23 +649,16 @@
       const all = state.monthly;
       if (!all.length) return [];
 
-      const startInput = document.getElementById('startMonth');
-      const endInput = document.getElementById('endMonth');
-
       let filtered = all.slice();
 
-      if (startInput && startInput.value) {
-        filtered = filtered.filter(d => d.date.slice(0, 7) >= startInput.value);
+      if (ids.startMonth && ids.startMonth.value) {
+        filtered = filtered.filter(d => d.date.slice(0, 7) >= ids.startMonth.value);
       }
-      if (endInput && endInput.value) {
-        filtered = filtered.filter(d => d.date.slice(0, 7) <= endInput.value);
-      }
-
-      if (!startInput?.value && !endInput?.value) {
-        filtered = state.viewRange === "full" ? filtered : filtered.slice(-state.viewRange);
+      if (ids.endMonth && ids.endMonth.value) {
+        filtered = filtered.filter(d => d.date.slice(0, 7) <= ids.endMonth.value);
       }
 
-      return enrichWithWindowStandardization(filtered);
+      return filtered;
     }
 
     function latestRecord() {
@@ -658,20 +666,14 @@
       return shown.length ? shown[shown.length - 1] : null;
     }
 
-    function getWindowStandardDeviations(series) {
-      return {
-        sdKc: stddev(series.map(d => d.kcUStar)),
-        sdCbo: stddev(series.map(d => d.cboUStar))
-      };
+    function getSampleSdKc(series) {
+      return stddev(series.map(d => d.kcUStar));
     }
 
-    function enrichWithWindowStandardization(series) {
-      const { sdKc, sdCbo } = getWindowStandardDeviations(series);
-      return series.map(d => ({
-        ...d,
-        zKc: (sdKc && d.gapKc !== null) ? d.gapKc / sdKc : null,
-        zCbo: (sdCbo && d.gapCbo !== null) ? d.gapCbo / sdCbo : null,
-      }));
+    function getSampleStandardizedKc(rec, series) {
+      const sd = getSampleSdKc(series);
+      if (!sd || rec?.gapKc === null || rec?.gapKc === undefined) return null;
+      return rec.gapKc / sd;
     }
 
     function renderMetrics() {
@@ -716,19 +718,19 @@
 
 
     function renderSDInfo() {
-      const shown = getDisplayedSeries();
-      const { sdKc, sdCbo } = getWindowStandardDeviations(shown);
       ids.sdInfoBox.innerHTML = `
-        <p><span class="strong">Standard deviation choice:</span> The standardized gaps in Option 2 use the standard deviation of each natural-rate measure over the selected date window.</p>
-        <p><span class="strong">Kansas City Fed u* standard deviation (selected window):</span> ${sdKc !== null ? sdKc.toFixed(2) : "—"}</p>
-        <p><span class="strong">CBO u* standard deviation (selected window):</span> ${sdCbo !== null ? sdCbo.toFixed(2) : "—"}</p>
+        <p><span class="strong">Standard deviation choice:</span> Option 2 uses the historical standard deviation of each natural-rate measure to preserve comparability across displayed date ranges.</p>
+        <p><span class="strong">Kansas City Fed u* historical standard deviation:</span> ${state.sdKc !== null ? state.sdKc.toFixed(3) : "—"}</p>
+        <p><span class="strong">CBO u* historical standard deviation:</span> ${state.sdCbo !== null ? state.sdCbo.toFixed(3) : "—"}</p>
       `;
     }
 
     function renderComparisonTable() {
       const latest = latestRecord();
       if (!latest) return;
+      const shown = getDisplayedSeries();
       const cred = classifyCredible(latest);
+      const zKcSample = getSampleStandardizedKc(latest, shown);
       ids.comparisonTable.innerHTML = `
         <tr>
           <td>Kansas City Fed unemployment gap</td>
@@ -737,13 +739,19 @@
           <td>${cred.label}</td>
         </tr>
         <tr>
-          <td>Kansas City Fed standardized gap</td>
+          <td>Kansas City Fed standardized gap (historical SD)</td>
           <td>${monthLabel(latest.date)}</td>
           <td>${formatZ(latest.zKc)}</td>
           <td>${classifyStandardized(latest.zKc)}</td>
         </tr>
         <tr>
-          <td>CBO unemployment gap</td>
+          <td>Kansas City Fed standardized gap (sample SD)</td>
+          <td>${monthLabel(latest.date)}</td>
+          <td>${formatZ(zKcSample)}</td>
+          <td>${classifyStandardized(zKcSample)}</td>
+        </tr>
+        <tr>
+          <td>CBO unemployment gap standardized by historical SD</td>
           <td>${monthLabel(latest.date)}</td>
           <td>${formatZ(latest.zCbo)}</td>
           <td>${classifyStandardized(latest.zCbo)}</td>
@@ -754,10 +762,13 @@
     function renderNotes() {
       const latest = latestRecord();
       if (!latest) return;
+      const shown = getDisplayedSeries();
       const cred = classifyCredible(latest);
+      const zKcSample = getSampleStandardizedKc(latest, shown);
       ids.interpretationNotes.innerHTML = `
         <p><span class="strong">Option 1: Credible Set View.</span> For ${monthLabel(latest.date)}, the labor market is classified as <span class="strong">${cred.label.toLowerCase()}</span> because the 68% credible-set unemployment-gap band runs from <span class="strong">${formatGap(latest.gapLower)}</span> to <span class="strong">${formatGap(latest.gapUpper)}</span>.</p>
-        <p><span class="strong">Option 2: Standardized Gap View.</span> The Kansas City Fed standardized gap is <span class="strong">${formatZ(latest.zKc)}</span>, while the CBO unemployment gap standardized by the selected-window standard deviation of the CBO measure is <span class="strong">${formatZ(latest.zCbo)}</span>.</p>
+        <p><span class="strong">Option 2: Standardized Gap View (Historical SD).</span> The Kansas City Fed standardized gap is <span class="strong">${formatZ(latest.zKc)}</span>, while the CBO unemployment gap standardized by the historical standard deviation of the CBO measure is <span class="strong">${formatZ(latest.zCbo)}</span>.</p>
+        <p><span class="strong">Option 3: Kansas City Fed Standardized Gap View (Sample SD Robustness Check).</span> Using the sample standard deviation of the Kansas City Fed natural-rate estimate over the displayed window, the Kansas City Fed standardized gap is <span class="strong">${formatZ(zKcSample)}</span>.</p>
       `;
     }
 
@@ -765,6 +776,7 @@
       ids.stdValues.innerHTML = `
         <div><span class="strong">Historical standard deviation used for the Kansas City Fed measure:</span> ${state.sdKc ? state.sdKc.toFixed(3) : "—"}</div>
         <div style="margin-top:8px;"><span class="strong">Historical standard deviation used for the CBO measure:</span> ${state.sdCbo ? state.sdCbo.toFixed(3) : "—"}</div>
+        <div style="margin-top:8px;" class="small">These historical standard deviations are fixed over time to preserve comparability across displayed date ranges.</div>
       `;
     }
 
@@ -981,6 +993,78 @@
       });
     }
 
+
+    function renderRobustnessChart() {
+      const shown = getDisplayedSeries();
+      const labels = displayedLabels(shown);
+      const sampleSdKc = getSampleSdKc(shown);
+      const robustnessSeries = shown.map(d => (sampleSdKc && d.gapKc !== null) ? d.gapKc / sampleSdKc : null);
+
+      const datasets = [
+        {
+          label: "Kansas City Fed standardized gap (sample SD)",
+          data: robustnessSeries,
+          borderColor: "#1d4ed8",
+          backgroundColor: "#1d4ed8",
+          borderWidth: 2.5,
+          pointRadius: 0,
+          tension: 0.18,
+        },
+        {
+          label: "+1 threshold",
+          data: shown.map(() => 1),
+          borderColor: "#9ca3af",
+          borderDash: [6, 6],
+          borderWidth: 1.4,
+          pointRadius: 0,
+          tension: 0,
+        },
+        {
+          label: "-1 threshold",
+          data: shown.map(() => -1),
+          borderColor: "#9ca3af",
+          borderDash: [6, 6],
+          borderWidth: 1.4,
+          pointRadius: 0,
+          tension: 0,
+        },
+        {
+          label: "Zero line",
+          data: shown.map(() => 0),
+          borderColor: "#000000",
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0,
+        }
+      ];
+
+      if (state.robustnessChart) {
+        state.robustnessChart.data.labels = labels;
+        state.robustnessChart.data.datasets = datasets;
+        state.robustnessChart.update();
+      } else {
+        state.robustnessChart = new Chart(ids.robustnessChart, {
+          type: 'line',
+          data: { labels, datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              legend: { position: 'bottom' },
+              tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatZ(ctx.raw)}` } }
+            },
+            scales: { y: { title: { display: true, text: 'Standard deviations' } } }
+          }
+        });
+      }
+
+      ids.robustnessSdInfoBox.innerHTML = `
+        <p><span class="strong">Kansas City Fed u* sample standard deviation over the displayed window:</span> ${sampleSdKc !== null ? sampleSdKc.toFixed(3) : "—"}</p>
+        <p class="small">Option 3 is a robustness check that rescales the Kansas City Fed unemployment gap using the sample standard deviation from the currently displayed date range.</p>
+      `;
+    }
+
     function renderAll() {
       renderMetrics();
       renderAsOf();
@@ -991,6 +1075,7 @@
       renderLevelsChart();
       renderCredibleChart();
       renderStandardizedChart();
+      renderRobustnessChart();
       updateRangeNote();
     }
 
@@ -1047,7 +1132,9 @@
     }
 
     function currentCombinedRows() {
-      return getDisplayedSeries().map(d => ({
+      const shown = getDisplayedSeries();
+      const sampleSdKc = getSampleSdKc(shown);
+      return shown.map(d => ({
         date: d.date,
         unemployment_rate: d.unemployment,
         kc_fed_model_based_natural_rate_of_unemployment: d.kcUStar,
@@ -1058,8 +1145,9 @@
         kc_gap_lower: d.gapLower,
         kc_gap_upper: d.gapUpper,
         cbo_unemployment_gap: d.gapCbo,
-        kc_standardized_gap: d.zKc,
-        cbo_standardized_gap: d.zCbo,
+        kc_standardized_gap_historical_sd: d.zKc,
+        kc_standardized_gap_sample_sd: (sampleSdKc && d.gapKc !== null) ? d.gapKc / sampleSdKc : null,
+        cbo_standardized_gap_historical_sd: d.zCbo,
       }));
     }
 
@@ -1101,10 +1189,14 @@
         kc_gap_lower: d.kc_gap_lower,
         kc_gap_upper: d.kc_gap_upper,
       }))));
-      ids.downloadStandardizedBtn.addEventListener('click', () => downloadCsv('chart3_standardized_gap_view.csv', currentCombinedRows().map(d => ({
+      ids.downloadStandardizedBtn.addEventListener('click', () => downloadCsv('chart3_standardized_gap_view_historical_sd.csv', currentCombinedRows().map(d => ({
         date: d.date,
-        kc_standardized_gap: d.kc_standardized_gap,
-        cbo_standardized_gap: d.cbo_standardized_gap,
+        kc_standardized_gap_historical_sd: d.kc_standardized_gap_historical_sd,
+        cbo_standardized_gap_historical_sd: d.cbo_standardized_gap_historical_sd,
+      }))));
+      ids.downloadRobustnessBtn.addEventListener('click', () => downloadCsv('chart4_kc_standardized_gap_sample_sd.csv', currentCombinedRows().map(d => ({
+        date: d.date,
+        kc_standardized_gap_sample_sd: d.kc_standardized_gap_sample_sd,
       }))));
     }
 
