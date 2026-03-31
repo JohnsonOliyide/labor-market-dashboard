@@ -347,6 +347,7 @@
         <h2 class="section-title">Option 2: Standardized Gap View</h2>
         <p class="subtle">We divide each unemployment gap by the historical standard deviation of the corresponding natural-rate estimate. Values above +1 indicate slack, values below -1 indicate tightness, and values between -1 and +1 indicate the labor market is roughly balanced.</p>
         <div class="chart-wrap"><canvas id="standardizedChart"></canvas></div>
+        <div id="sdInfoBox" class="note-box" style="margin-top:14px;"></div>
         <div id="stdValues" class="std-box"></div>
         <div class="button-row" style="margin-top:14px;">
           <button id="downloadStandardizedBtn" type="button">Download standardized chart data</button>
@@ -376,24 +377,61 @@
         <div class="note-box" id="interpretationNotes"></div>
       </section>
 
-      <section class="card span-6">
-        <h2 class="section-title">Data sources</h2>
-        <div class="source-box">
-          <ul>
-            <li><span class="strong">Kansas City Fed model-based natural rate of unemployment:</span> `KCFed_ModelBased_Rstar_Ustar.csv`</li>
-            <li><span class="strong">Unemployment rate:</span> `UNRATE.csv`</li>
-            <li><span class="strong">CBO noncyclical rate of unemployment:</span> `NROU.csv`</li>
-          </ul>
-          <p class="small">In this dashboard, the quarterly CBO series is repeated across the three months within each quarter to align it with monthly unemployment data.</p>
-        </div>
-      </section>
+     <section class="card span-6">
+  <h2 class="section-title">Data Sources</h2>
+  <div class="note-box">
+    <ul>
+      <li>
+        <span class="strong">Kansas City Fed model-based natural rate of unemployment (u*):</span>
+        <a href="https://www.kansascityfed.org/data-and-trends/kansas-city-fed-model-based-natural-rate-of-interest-and-natural-unemployment-rate/" target="_blank">
+          Federal Reserve Bank of Kansas City
+        </a>
+      </li>
+      <li>
+        <span class="strong">Unemployment rate:</span>
+        <a href="https://fred.stlouisfed.org/series/UNRATE" target="_blank">
+          U.S. Bureau of Labor Statistics (via FRED)
+        </a>
+      </li>
+      <li>
+        <span class="strong">CBO noncyclical rate of unemployment:</span>
+        <a href="https://fred.stlouisfed.org/series/NROU" target="_blank">
+          Congressional Budget Office (via FRED)
+        </a>
+      </li>
+    </ul>
 
-      <section class="card span-6">
-        <h2 class="section-title">Disclaimer</h2>
-        <div class="note-box">
-          The views expressed in this dashboard are those of the author and do not necessarily reflect the views of the Federal Reserve Bank of Kansas City or the Federal Reserve System.
-        </div>
-      </section>
+    <p class="small">
+      The CBO series is reported at a quarterly frequency. In this dashboard, each quarterly value is repeated across the corresponding three months to enable comparison with monthly unemployment data.
+    </p>
+
+    <p class="small">
+      All data are publicly available. Data transformations and alignment are performed by the author.
+    </p>
+  </div>
+</section>
+
+<section class="card span-12">
+  <h2 class="section-title">About</h2>
+  <div class="note-box">
+    
+    <p><span class="strong">Author:</span> Johnson Oliyide</p>
+    <p class="small">Research Associate, Federal Reserve Bank of Kansas City</p>
+
+    <p>
+      This dashboard presents measures of labor market tightness based on publicly available data and model-based estimates.
+    </p>
+
+    <p>
+      The views expressed in this dashboard are those of the author and should not be interpreted as reflecting the views of the Federal Reserve Bank of Kansas City or the Federal Reserve System.
+    </p>
+
+    <p>
+      The data used in this dashboard are obtained from publicly available sources, including the Federal Reserve Bank of Kansas City, the U.S. Bureau of Labor Statistics, and the Congressional Budget Office. The author does not claim ownership of these data.
+    </p>
+
+  </div>
+</section>
     </div>
   </div>
 
@@ -429,6 +467,7 @@
       levelsChart: document.getElementById("levelsChart"),
       credibleChart: document.getElementById("credibleChart"),
       standardizedChart: document.getElementById("standardizedChart"),
+      sdInfoBox: document.getElementById("sdInfoBox"),
       startMonth: document.getElementById("startMonth"),
       endMonth: document.getElementById("endMonth"),
       quickRange: document.getElementById("quickRange"),
@@ -592,12 +631,47 @@
     }
 
     function getDisplayedSeries() {
-      return state.filtered;
+      const all = state.monthly;
+      if (!all.length) return [];
+
+      const startInput = document.getElementById('startMonth');
+      const endInput = document.getElementById('endMonth');
+
+      let filtered = all.slice();
+
+      if (startInput && startInput.value) {
+        filtered = filtered.filter(d => d.date.slice(0, 7) >= startInput.value);
+      }
+      if (endInput && endInput.value) {
+        filtered = filtered.filter(d => d.date.slice(0, 7) <= endInput.value);
+      }
+
+      if (!startInput?.value && !endInput?.value) {
+        filtered = state.viewRange === "full" ? filtered : filtered.slice(-state.viewRange);
+      }
+
+      return enrichWithWindowStandardization(filtered);
     }
 
     function latestRecord() {
       const shown = getDisplayedSeries();
       return shown.length ? shown[shown.length - 1] : null;
+    }
+
+    function getWindowStandardDeviations(series) {
+      return {
+        sdKc: stddev(series.map(d => d.kcUStar)),
+        sdCbo: stddev(series.map(d => d.cboUStar))
+      };
+    }
+
+    function enrichWithWindowStandardization(series) {
+      const { sdKc, sdCbo } = getWindowStandardDeviations(series);
+      return series.map(d => ({
+        ...d,
+        zKc: (sdKc && d.gapKc !== null) ? d.gapKc / sdKc : null,
+        zCbo: (sdCbo && d.gapCbo !== null) ? d.gapCbo / sdCbo : null,
+      }));
     }
 
     function renderMetrics() {
@@ -640,6 +714,17 @@
       ids.credibleSummary.textContent = `For ${monthLabel(latest.date)}, the Kansas City Fed unemployment gap is ${formatGap(latest.gapKc)}, with a 68% credible-set gap range from ${formatGap(latest.gapLower)} to ${formatGap(latest.gapUpper)}.`;
     }
 
+
+    function renderSDInfo() {
+      const shown = getDisplayedSeries();
+      const { sdKc, sdCbo } = getWindowStandardDeviations(shown);
+      ids.sdInfoBox.innerHTML = `
+        <p><span class="strong">Standard deviation choice:</span> The standardized gaps in Option 2 use the standard deviation of each natural-rate measure over the selected date window.</p>
+        <p><span class="strong">Kansas City Fed u* standard deviation (selected window):</span> ${sdKc !== null ? sdKc.toFixed(2) : "—"}</p>
+        <p><span class="strong">CBO u* standard deviation (selected window):</span> ${sdCbo !== null ? sdCbo.toFixed(2) : "—"}</p>
+      `;
+    }
+
     function renderComparisonTable() {
       const latest = latestRecord();
       if (!latest) return;
@@ -672,8 +757,7 @@
       const cred = classifyCredible(latest);
       ids.interpretationNotes.innerHTML = `
         <p><span class="strong">Option 1: Credible Set View.</span> For ${monthLabel(latest.date)}, the labor market is classified as <span class="strong">${cred.label.toLowerCase()}</span> because the 68% credible-set unemployment-gap band runs from <span class="strong">${formatGap(latest.gapLower)}</span> to <span class="strong">${formatGap(latest.gapUpper)}</span>.</p>
-        <p><span class="strong">Option 2: Standardized Gap View.</span> The Kansas City Fed standardized gap is <span class="strong">${formatZ(latest.zKc)}</span>, while the CBO unemployment gap standardized by the historical standard deviation of the CBO measure is <span class="strong">${formatZ(latest.zCbo)}</span>.</p>
-        <p><span class="strong">Reading the sign.</span> Positive unemployment gaps indicate softer labor market conditions. Negative unemployment gaps indicate tighter labor market conditions.</p>
+        <p><span class="strong">Option 2: Standardized Gap View.</span> The Kansas City Fed standardized gap is <span class="strong">${formatZ(latest.zKc)}</span>, while the CBO unemployment gap standardized by the selected-window standard deviation of the CBO measure is <span class="strong">${formatZ(latest.zCbo)}</span>.</p>
       `;
     }
 
