@@ -594,8 +594,8 @@
       const cboMonthMap = expandQuarterlyToMonthly(state.cba);
       const keys = [...kcMap.keys()].sort();
 
-      state.sdKc = stddev(state.kc.map(d => d.uStar));
-      state.sdCbo = stddev(state.cba.map(d => d.value));
+      const sdKc = stddev(state.kc.map(d => d.uStar));
+      const sdCbo = stddev(state.cba.map(d => d.value));
 
       state.monthly = keys.map(k => {
         const kc = kcMap.get(k);
