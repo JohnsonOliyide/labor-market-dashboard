@@ -320,7 +320,7 @@
 
       <section class="card span-12">
         <h2 class="section-title">Natural-rate estimates and unemployment rate</h2>
-        <p class="subtle">This chart compares the unemployment rate with the Kansas City Fed model-based natural rate of unemployment, its 68% credible set, and the CBO noncyclical rate of unemployment.</p>
+        <p class="subtle">This chart compares the unemployment rate with the Kansas City Fed model-based natural unemployment rate, its 68% credible set, and the CBO noncyclical rate of unemployment.</p>
         <div class="chart-wrap"><canvas id="levelsChart"></canvas></div>
         <div class="button-row" style="margin-top:14px;">
           <button id="downloadLevelsBtn" type="button">Download first chart data</button>
@@ -329,7 +329,7 @@
 
       <section class="card span-12">
         <h2 class="section-title">Option 1: Credible Set View</h2>
-        <p class="subtle">We compute the unemployment gap using the Kansas City Fed model-based natural rate of unemployment and its 68% credible set. If the full gap band is above zero, the labor market is slack. If the full gap band is below zero, it is tight. If zero falls inside the band, the labor market is roughly balanced.</p>
+        <p class="subtle">We compute the unemployment gap using the Kansas City Fed model-based natural unemployment rate and its 68% credible set. If the full gap band is above zero, the labor market is slack. If the full gap band is below zero, it is tight. If zero falls inside the band, the labor market is roughly balanced.</p>
         <div class="chart-wrap"><canvas id="credibleChart"></canvas></div>
         <div style="margin-top:14px; display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
           <span id="credibleBadge" class="pill balanced">Roughly balanced</span>
@@ -389,7 +389,7 @@
   <div class="note-box">
     <ul>
       <li>
-        <span class="strong">Kansas City Fed model-based natural rate of unemployment (u*):</span>
+        <span class="strong">Kansas City Fed model-based natural unemployment rate (u*):</span>
         <a href="https://www.kansascityfed.org/data-and-trends/kansas-city-fed-model-based-natural-rate-of-interest-and-natural-unemployment-rate/" target="_blank">
           Federal Reserve Bank of Kansas City
         </a>
@@ -688,7 +688,7 @@
           <div class="note">Actual monthly unemployment rate</div>
         </div>
         <div class="metric">
-          <div class="label">Kansas City Fed model-based natural rate of unemployment</div>
+          <div class="label">Kansas City Fed model-based natural unemployment rate</div>
           <div class="value">${formatPct(latest.kcUStar)}</div>
           <div class="note">68% credible set: ${formatPct(latest.kcLower)} to ${formatPct(latest.kcUpper)}</div>
         </div>
@@ -699,7 +699,7 @@
       const kcDate = lastValidDate(state.kc, "uStar");
       const unDate = lastValidDate(state.unrate, "value");
       ids.asOfBox.innerHTML = `
-        <div><span class="strong">Kansas City Fed model-based natural rate of unemployment:</span> ${kcDate ? monthLabel(kcDate) : "—"}</div>
+        <div><span class="strong">Kansas City Fed model-based natural unemployment rate:</span> ${kcDate ? monthLabel(kcDate) : "—"}</div>
         <div style="margin-top:8px;"><span class="strong">Unemployment rate:</span> ${unDate ? monthLabel(unDate) : "—"}</div>
       `;
     }
@@ -812,7 +812,7 @@
           fill: '-1',
         },
         {
-          label: "Kansas City Fed model-based natural rate of unemployment",
+          label: "Kansas City Fed model-based natural unemployment rate",
           data: shown.map(d => d.kcUStar),
           borderColor: "#1d4ed8",
           backgroundColor: "#1d4ed8",
