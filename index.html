@@ -811,6 +811,7 @@ The website presents three approaches to interpreting the unemployment gap. <spa
           label: "",
           data: shown.map(d => d.kcLower),
           borderColor: "rgba(0,0,0,0)",
+          borderWidth: 0,
           pointRadius: 0,
           tension: 0.18,
           fill: false,
@@ -859,7 +860,14 @@ The website presents three approaches to interpreting the unemployment gap. <spa
           maintainAspectRatio: false,
           interaction: { mode: 'index', intersect: false },
           plugins: {
-            legend: { position: 'bottom' },
+            legend: {
+              position: 'bottom',
+              labels: {
+                filter: function(item) {
+                  return item.text !== "";
+                }
+              }
+            },
             tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatPct(ctx.raw)}` } }
           },
           scales: { y: { title: { display: true, text: 'Percent' } } }
@@ -875,6 +883,7 @@ The website presents three approaches to interpreting the unemployment gap. <spa
           label: "",
           data: shown.map(d => d.gapLower),
           borderColor: "rgba(0,0,0,0)",
+          borderWidth: 0,
           pointRadius: 0,
           tension: 0.18,
           fill: false,
@@ -922,7 +931,14 @@ The website presents three approaches to interpreting the unemployment gap. <spa
           maintainAspectRatio: false,
           interaction: { mode: 'index', intersect: false },
           plugins: {
-            legend: { position: 'bottom' },
+            legend: {
+              position: 'bottom',
+              labels: {
+                filter: function(item) {
+                  return item.text !== "";
+                }
+              }
+            },
             tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatGap(ctx.raw)}` } }
           },
           scales: { y: { title: { display: true, text: 'Percentage points' } } }
