@@ -355,7 +355,7 @@ The website presents three approaches to interpreting the unemployment gap. <spa
 
       <section class="card span-12">
         <h2 class="section-title">Option 2: Standardized Gap View</h2>
-        <p class="subtle">I divide each unemployment gap by the historical standard deviation of the corresponding natural-rate estimate. Values above +1 indicate slack, values below -1 indicate tightness, and values between -1 and +1 indicate the labor market is roughly balanced.</p>
+        <p class="subtle">I divide each unemployment gap by the sample standard deviation of that unemployment-gap measure over the displayed time window. Values above +1 indicate slack, values below -1 indicate tightness, and values between -1 and +1 indicate the labor market is roughly balanced.</p>
         <div class="chart-wrap"><canvas id="standardizedChart"></canvas></div>
         <div id="sdInfoBox" class="note-box" style="margin-top:14px;"></div>
         <div id="stdValues" class="std-box"></div>
@@ -688,6 +688,13 @@ The website presents three approaches to interpreting the unemployment gap. <spa
       return rec.gapKc / se;
     }
 
+    function getGapSampleStandardDeviations(series) {
+      return {
+        sdGapKc: stddev(series.map(d => d.gapKc)),
+        sdGapCbo: stddev(series.map(d => d.gapCbo))
+      };
+    }
+
     function renderMetrics() {
       const latest = latestRecord();
       if (!latest) return;
@@ -730,10 +737,12 @@ The website presents three approaches to interpreting the unemployment gap. <spa
 
 
     function renderSDInfo() {
+      const shown = getDisplayedSeries();
+      const { sdGapKc, sdGapCbo } = getGapSampleStandardDeviations(shown);
       ids.sdInfoBox.innerHTML = `
-        <p><span class="strong">Standard deviation choice:</span> Option 2 uses the historical standard deviation of each natural-rate measure to preserve comparability across displayed date ranges.</p>
-        <p><span class="strong">Kansas City Fed u* historical standard deviation:</span> ${state.sdKc !== null ? state.sdKc.toFixed(3) : "—"}</p>
-        <p><span class="strong">CBO u* historical standard deviation:</span> ${state.sdCbo !== null ? state.sdCbo.toFixed(3) : "—"}</p>
+        <p><span class="strong">Standard deviation choice:</span> Option 2 uses the sample standard deviation of each unemployment-gap measure over the displayed date window.</p>
+        <p><span class="strong">Kansas City Fed unemployment-gap sample standard deviation:</span> ${sdGapKc !== null ? sdGapKc.toFixed(3) : "—"}</p>
+        <p><span class="strong">CBO unemployment-gap sample standard deviation:</span> ${sdGapCbo !== null ? sdGapCbo.toFixed(3) : "—"}</p>
       `;
     }
 
@@ -742,6 +751,10 @@ The website presents three approaches to interpreting the unemployment gap. <spa
       if (!latest) return;
       const cred = classifyCredible(latest);
       const zKcSe = getSeStandardizedKc(latest);
+      const shown = getDisplayedSeries();
+      const { sdGapKc, sdGapCbo } = getGapSampleStandardDeviations(shown);
+      const zKcGap = (sdGapKc && latest.gapKc !== null) ? latest.gapKc / sdGapKc : null;
+      const zCboGap = (sdGapCbo && latest.gapCbo !== null) ? latest.gapCbo / sdGapCbo : null;
       ids.comparisonTable.innerHTML = `
         <tr>
           <td>Kansas City Fed unemployment gap</td>
@@ -750,22 +763,22 @@ The website presents three approaches to interpreting the unemployment gap. <spa
           <td>${cred.label}</td>
         </tr>
         <tr>
-          <td>Kansas City Fed standardized gap (historical SD)</td>
+          <td>Kansas City Fed standardized gap (sample SD of gap)</td>
           <td>${monthLabel(latest.date)}</td>
-          <td>${formatZ(latest.zKc)}</td>
-          <td>${classifyStandardized(latest.zKc)}</td>
+          <td>${formatZ(zKcGap)}</td>
+          <td>${classifyStandardized(zKcGap)}</td>
+        </tr>
+        <tr>
+          <td>CBO unemployment gap standardized by sample SD of gap</td>
+          <td>${monthLabel(latest.date)}</td>
+          <td>${formatZ(zCboGap)}</td>
+          <td>${classifyStandardized(zCboGap)}</td>
         </tr>
         <tr>
           <td>Kansas City Fed standard-error-scaled gap</td>
           <td>${monthLabel(latest.date)}</td>
           <td>${formatZ(zKcSe)}</td>
           <td>${classifyStandardized(zKcSe)}</td>
-        </tr>
-        <tr>
-          <td>CBO unemployment gap standardized by historical SD</td>
-          <td>${monthLabel(latest.date)}</td>
-          <td>${formatZ(latest.zCbo)}</td>
-          <td>${classifyStandardized(latest.zCbo)}</td>
         </tr>
       `;
     }
@@ -775,18 +788,24 @@ The website presents three approaches to interpreting the unemployment gap. <spa
       if (!latest) return;
       const cred = classifyCredible(latest);
       const zKcSe = getSeStandardizedKc(latest);
+      const shown = getDisplayedSeries();
+      const { sdGapKc, sdGapCbo } = getGapSampleStandardDeviations(shown);
+      const zKcGap = (sdGapKc && latest.gapKc !== null) ? latest.gapKc / sdGapKc : null;
+      const zCboGap = (sdGapCbo && latest.gapCbo !== null) ? latest.gapCbo / sdGapCbo : null;
       ids.interpretationNotes.innerHTML = `
         <p><span class="strong">Option 1: Credible Set View.</span> For ${monthLabel(latest.date)}, the labor market is classified as <span class="strong">${cred.label.toLowerCase()}</span> because the 68% credible-set unemployment-gap band runs from <span class="strong">${formatGap(latest.gapLower)}</span> to <span class="strong">${formatGap(latest.gapUpper)}</span>.</p>
-        <p><span class="strong">Option 2: Standardized Gap View (Historical SD).</span> The Kansas City Fed standardized gap is <span class="strong">${formatZ(latest.zKc)}</span>, while the CBO unemployment gap standardized by the historical standard deviation of the CBO measure is <span class="strong">${formatZ(latest.zCbo)}</span>.</p>
+        <p><span class="strong">Option 2: Standardized Gap View.</span> Using the sample standard deviation of the unemployment gap over the displayed window, the Kansas City Fed standardized gap is <span class="strong">${formatZ(zKcGap)}</span>, while the CBO unemployment gap standardized in the same way is <span class="strong">${formatZ(zCboGap)}</span>.</p>
         <p><span class="strong">Option 3: Standard-Error-Scaled Gap View.</span> Using an approximate standard error equal to half the width of the 68% credible set, the Kansas City Fed standard-error-scaled gap is <span class="strong">${formatZ(zKcSe)}</span>. Values between -1 and +1 indicate that the unemployment rate is within one standard error of the Kansas City Fed natural unemployment rate and the labor market is therefore interpreted as roughly balanced.</p>
       `;
     }
 
     function renderStdValues() {
+      const shown = getDisplayedSeries();
+      const { sdGapKc, sdGapCbo } = getGapSampleStandardDeviations(shown);
       ids.stdValues.innerHTML = `
-        <div><span class="strong">Historical standard deviation used for the Kansas City Fed measure:</span> ${state.sdKc ? state.sdKc.toFixed(3) : "—"}</div>
-        <div style="margin-top:8px;"><span class="strong">Historical standard deviation used for the CBO measure:</span> ${state.sdCbo ? state.sdCbo.toFixed(3) : "—"}</div>
-        <div style="margin-top:8px;" class="small">These historical standard deviations are fixed over time to preserve comparability across displayed date ranges.</div>
+        <div><span class="strong">Sample standard deviation used for the Kansas City Fed unemployment gap:</span> ${sdGapKc ? sdGapKc.toFixed(3) : "—"}</div>
+        <div style="margin-top:8px;"><span class="strong">Sample standard deviation used for the CBO unemployment gap:</span> ${sdGapCbo ? sdGapCbo.toFixed(3) : "—"}</div>
+        <div style="margin-top:8px;" class="small">These sample standard deviations are computed from the currently displayed date range.</div>
       `;
     }
 
@@ -949,10 +968,11 @@ The website presents three approaches to interpreting the unemployment gap. <spa
     function renderStandardizedChart() {
       const shown = getDisplayedSeries();
       const labels = displayedLabels(shown);
+      const { sdGapKc, sdGapCbo } = getGapSampleStandardDeviations(shown);
       const datasets = [
         {
-          label: "Kansas City Fed standardized gap",
-          data: shown.map(d => d.zKc),
+          label: "Kansas City Fed standardized gap (sample SD of gap)",
+          data: shown.map(d => (sdGapKc && d.gapKc !== null) ? d.gapKc / sdGapKc : null),
           borderColor: "#0f766e",
           backgroundColor: "#0f766e",
           borderWidth: 2.5,
@@ -960,8 +980,8 @@ The website presents three approaches to interpreting the unemployment gap. <spa
           tension: 0.18,
         },
         {
-          label: "CBO unemployment gap standardized by its natural-rate standard deviation",
-          data: shown.map(d => d.zCbo),
+          label: "CBO unemployment gap standardized by sample SD of gap",
+          data: shown.map(d => (sdGapCbo && d.gapCbo !== null) ? d.gapCbo / sdGapCbo : null),
           borderColor: "#7c3aed",
           backgroundColor: "#7c3aed",
           borderWidth: 2.5,
@@ -1160,6 +1180,7 @@ The website presents three approaches to interpreting the unemployment gap. <spa
 
     function currentCombinedRows() {
       const shown = getDisplayedSeries();
+      const { sdGapKc, sdGapCbo } = getGapSampleStandardDeviations(shown);
       return shown.map(d => ({
         date: d.date,
         unemployment_rate: d.unemployment,
@@ -1171,10 +1192,12 @@ The website presents three approaches to interpreting the unemployment gap. <spa
         kc_gap_lower: d.gapLower,
         kc_gap_upper: d.gapUpper,
         cbo_unemployment_gap: d.gapCbo,
-        kc_standardized_gap_historical_sd: d.zKc,
+        kc_gap_sample_sd: sdGapKc,
+        cbo_gap_sample_sd: sdGapCbo,
+        kc_standardized_gap_sample_sd: (sdGapKc && d.gapKc !== null) ? d.gapKc / sdGapKc : null,
+        cbo_standardized_gap_sample_sd: (sdGapCbo && d.gapCbo !== null) ? d.gapCbo / sdGapCbo : null,
         kc_standard_error_approx: getApproxSeKc(d),
         kc_gap_scaled_by_standard_error: getSeStandardizedKc(d),
-        cbo_standardized_gap_historical_sd: d.zCbo,
       }));
     }
 
@@ -1216,10 +1239,12 @@ The website presents three approaches to interpreting the unemployment gap. <spa
         kc_gap_lower: d.kc_gap_lower,
         kc_gap_upper: d.kc_gap_upper,
       }))));
-      ids.downloadStandardizedBtn.addEventListener('click', () => downloadCsv('chart3_standardized_gap_view_historical_sd.csv', currentCombinedRows().map(d => ({
+      ids.downloadStandardizedBtn.addEventListener('click', () => downloadCsv('chart3_standardized_gap_view_sample_gap_sd.csv', currentCombinedRows().map(d => ({
         date: d.date,
-        kc_standardized_gap_historical_sd: d.kc_standardized_gap_historical_sd,
-        cbo_standardized_gap_historical_sd: d.cbo_standardized_gap_historical_sd,
+        kc_gap_sample_sd: d.kc_gap_sample_sd,
+        cbo_gap_sample_sd: d.cbo_gap_sample_sd,
+        kc_standardized_gap_sample_sd: d.kc_standardized_gap_sample_sd,
+        cbo_standardized_gap_sample_sd: d.cbo_standardized_gap_sample_sd,
       }))));
       ids.downloadRobustnessBtn.addEventListener('click', () => downloadCsv('chart4_kc_gap_scaled_by_standard_error.csv', currentCombinedRows().map(d => ({
         date: d.date,
