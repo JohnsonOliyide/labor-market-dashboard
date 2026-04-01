@@ -763,7 +763,7 @@ The website presents three approaches to interpreting the unemployment gap. <spa
           <td>${cred.label}</td>
         </tr>
         <tr>
-          <td>Kansas City Fed standardized gap (sample SD of gap)</td>
+          <td>Kansas City Fed unemployment gap standardized by sample SD of gap</td>
           <td>${monthLabel(latest.date)}</td>
           <td>${formatZ(zKcGap)}</td>
           <td>${classifyStandardized(zKcGap)}</td>
@@ -971,7 +971,7 @@ The website presents three approaches to interpreting the unemployment gap. <spa
       const { sdGapKc, sdGapCbo } = getGapSampleStandardDeviations(shown);
       const datasets = [
         {
-          label: "Kansas City Fed standardized gap (sample SD of gap)",
+          label: "Kansas City Fed unemployment gap standardized by sample SD of gap",
           data: shown.map(d => (sdGapKc && d.gapKc !== null) ? d.gapKc / sdGapKc : null),
           borderColor: "#0f766e",
           backgroundColor: "#0f766e",
