@@ -12,13 +12,18 @@ urls = {
 
 for filename, url in urls.items():
     print(f"Downloading {filename}...")
-    response = requests.get(url, headers=headers)
 
-    if response.status_code == 200:
-        with open(filename, "wb") as f:
-            f.write(response.content)
-        print(f"{filename} updated.")
-    else:
-        raise Exception(f"Failed to download {filename} (status: {response.status_code})")
+    try:
+        response = requests.get(url, headers=headers, timeout=15)
 
-print("All data updated successfully.")
+        if response.status_code == 200:
+            with open(filename, "wb") as f:
+                f.write(response.content)
+            print(f"{filename} updated.")
+        else:
+            print(f"Failed to download {filename} (status {response.status_code})")
+
+    except Exception as e:
+        print(f"Error downloading {filename}: {e}")
+
+print("Done.")
