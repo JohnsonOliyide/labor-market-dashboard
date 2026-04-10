@@ -1,7 +1,9 @@
 import time
 import requests
 
-HEADERS = {"User-Agent": "Mozilla/5.0"}
+HEADERS = {
+    "User-Agent": "Mozilla/5.0"
+}
 
 URLS = {
     "KCFed_ModelBased_Rstar_Ustar.csv": "https://kcresearch-share.kansascityfed.org/kc-mbnr/KCFed_ModelBased_Rstar_Ustar.csv",
@@ -9,27 +11,28 @@ URLS = {
     "NROU.csv": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=NROU",
 }
 
-def download_with_retries(url: str, max_tries: int = 3, timeout: int = 60) -> bytes:
-    last_error = None
-    for attempt in range(1, max_tries + 1):
+def download(url, filename):
+    for i in range(3):
         try:
-            response = requests.get(url, headers=HEADERS, timeout=timeout)
-            response.raise_for_status()
-            return response.content
+            print(f"Downloading {filename} (attempt {i+1})...")
+            r = requests.get(url, headers=HEADERS, timeout=120)
+            r.raise_for_status()
+            
+            with open(filename, "wb") as f:
+                f.write(r.content)
+
+            print(f"{filename} updated.")
+            return
+        
         except Exception as e:
-            last_error = e
-            print(f"Attempt {attempt} failed for {url}: {e}")
-            if attempt < max_tries:
-                time.sleep(5)
-    raise last_error
+            print(f"Attempt {i+1} failed: {e}")
+            time.sleep(5)
 
-print("Starting full data refresh...")
+    print(f"Skipping {filename} after 3 failed attempts.")
 
-for filename, url in URLS.items():
-    print(f"Downloading {filename}...")
-    content = download_with_retries(url)
-    with open(filename, "wb") as f:
-        f.write(content)
-    print(f"{filename} updated.")
+print("Starting update...")
 
-print("All data updated successfully.")
+for file, url in URLS.items():
+    download(url, file)
+
+print("Done.")
