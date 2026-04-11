@@ -80,8 +80,6 @@ Schedule:
 
 ## Disclaimer
 
-The dashboards on this page are based on interactive outputs derived from some of my research on labor markets, macroeconomic dynamics, and monetary policy, as well as broader insights into the U.S. economy.
-
 The views expressed here are solely my own and do not represent those of the Federal Reserve Bank of Kansas City or the Federal Reserve System.
 
 The data used in this dashboard are obtained from publicly available sources. I do not claim ownership of these data.
@@ -94,10 +92,3 @@ Johnson Oliyide
 Research Associate, Federal Reserve Bank of Kansas City  
 
 ---
-
-## Future Extensions
-
-- Natural rate of interest (r*) dashboard  
-- Monetary policy stance tracker  
-- Inflation dynamics dashboard  
-- Release-aware update scheduling  
