@@ -25,6 +25,8 @@ jobs:
         run: pip install requests
 
       - name: Run update script
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python scripts/update_data.py
 
       - name: Commit changes
