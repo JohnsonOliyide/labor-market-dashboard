@@ -351,7 +351,6 @@
         <p class="subtle">I divide each unemployment gap by the sample standard deviation of that unemployment-gap measure over the displayed time window. Values above +1 indicate slack, values below -1 indicate tightness, and values between -1 and +1 indicate the labor market is roughly balanced.</p>
         <div class="chart-wrap"><canvas id="standardizedChart"></canvas></div>
         <div id="sdInfoBox" class="note-box" style="margin-top:14px;"></div>
-        <div id="stdValues" class="std-box"></div>
       </section>
 
       <section class="card span-12">
@@ -469,7 +468,6 @@
       interpretationNotes: document.getElementById("interpretationNotes"),
       credibleBadge: document.getElementById("credibleBadge"),
       credibleSummary: document.getElementById("credibleSummary"),
-      stdValues: document.getElementById("stdValues"),
       levelsChart: document.getElementById("levelsChart"),
       credibleChart: document.getElementById("credibleChart"),
       standardizedChart: document.getElementById("standardizedChart"),
@@ -774,16 +772,6 @@
         <p><span class="strong">Option 1: Credible Set View.</span> For ${monthLabel(latest.date)}, the labor market is classified as <span class="strong">${cred.label.toLowerCase()}</span> because the 68% credible-set unemployment-gap band runs from <span class="strong">${formatGap(latest.gapLower)}</span> to <span class="strong">${formatGap(latest.gapUpper)}</span>.</p>
         <p><span class="strong">Option 2: Standardized Gap View.</span> Using the sample standard deviation of the unemployment gap over the displayed window, the Kansas City Fed standardized gap is <span class="strong">${formatZ(zKcGap)}</span>, while the CBO unemployment gap standardized in the same way is <span class="strong">${formatZ(zCboGap)}</span>.</p>
         <p><span class="strong">Option 3: Standard-Error-Scaled Gap View.</span> Using an approximate standard error equal to half the width of the 68% credible set, the Kansas City Fed standard-error-scaled gap is <span class="strong">${formatZ(zKcSe)}</span>. Values between -1 and +1 indicate that the unemployment rate is within one standard error of the Kansas City Fed natural unemployment rate and the labor market is therefore interpreted as roughly balanced.</p>
-      `;
-    }
-
-    function renderStdValues() {
-      const shown = getDisplayedSeries();
-      const { sdGapKc, sdGapCbo } = getGapSampleStandardDeviations(shown);
-      ids.stdValues.innerHTML = `
-        <div><span class="strong">Sample standard deviation used for the Kansas City Fed unemployment gap:</span> ${sdGapKc ? sdGapKc.toFixed(3) : "—"}</div>
-        <div style="margin-top:8px;"><span class="strong">Sample standard deviation used for the CBO unemployment gap:</span> ${sdGapCbo ? sdGapCbo.toFixed(3) : "—"}</div>
-        <div style="margin-top:8px;" class="small">These sample standard deviations are computed from the currently displayed date range.</div>
       `;
     }
 
@@ -1095,7 +1083,6 @@
       renderCredibleSummary();
       renderComparisonTable();
       renderNotes();
-      renderStdValues();
       renderSDInfo();
       renderLevelsChart();
       renderCredibleChart();
