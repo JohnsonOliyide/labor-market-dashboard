@@ -261,25 +261,25 @@
   <div class="container">
     <section class="hero">
       <h1>Labor Market Tightness Dashboard</h1>
-     <p>
-This dashboard focuses on the U.S. labor market and measures labor market tightness using the unemployment gap, defined as the difference between the unemployment rate and an estimate of the natural rate of unemployment (u*). When the unemployment rate is below the natural rate, the labor market is considered tight, indicating that labor demand exceeds labor supply. When the unemployment rate is above the natural rate, the labor market is considered slack.
-</p>
+      <p>
+        This dashboard focuses on the U.S. labor market and measures labor market tightness using the unemployment gap, defined as the difference between the unemployment rate and an estimate of the natural rate of unemployment (u*). When the unemployment rate is below the natural rate, the labor market is considered tight, indicating that labor demand exceeds labor supply. When the unemployment rate is above the natural rate, the labor market is considered slack.
+      </p>
 
-<p>
-This approach provides a macroeconomic, equilibrium-based view of labor market conditions. There are other complementary measures of labor market tightness that capture different dimensions of the labor market. For example, the <a href="https://www.newyorkfed.org/research/labor-market-tightness/#interactive" target="_blank">New York Fed HPW Index</a> measures tightness based on hiring conditions and vacancy-to-unemployment ratios. In addition, the <a href="https://www.kansascityfed.org/data-and-trends/labor-market-conditions-indicators/" target="_blank">Kansas City Fed’s Labor Market Conditions Indicators (LMCI)</a> provide a broader assessment of labor market health using multiple indicators.
-</p>
+      <p>
+        This approach provides a macroeconomic, equilibrium-based view of labor market conditions. There are other complementary measures of labor market tightness that capture different dimensions of the labor market. For example, the <a href="https://www.newyorkfed.org/research/labor-market-tightness/#interactive" target="_blank">New York Fed HPW Index</a> measures tightness based on hiring conditions and vacancy-to-unemployment ratios. In addition, the <a href="https://www.kansascityfed.org/data-and-trends/labor-market-conditions-indicators/" target="_blank">Kansas City Fed’s Labor Market Conditions Indicators (LMCI)</a> provide a broader assessment of labor market health using multiple indicators.
+      </p>
 
-<p>
-The website presents three approaches to interpreting the unemployment gap. <span class="strong">Option 1: Credible Set View</span> uses the Kansas City Fed model-based natural rate of unemployment and its 68% credible set. If zero falls within the unemployment-gap band, the labor market is described as <span class="strong">roughly balanced</span>. If the entire band lies below zero, the labor market is <span class="strong">tight</span>, and if it lies above zero, the labor market is <span class="strong">slack</span>.
-</p>
+      <p>
+        The website presents three approaches to interpreting the unemployment gap. <span class="strong">Option 1: Credible Set View</span> uses the Kansas City Fed model-based natural rate of unemployment and its 68% credible set. If zero falls within the unemployment-gap band, the labor market is described as <span class="strong">roughly balanced</span>. If the entire band lies below zero, the labor market is <span class="strong">tight</span>, and if it lies above zero, the labor market is <span class="strong">slack</span>.
+      </p>
 
-<p>
-<span class="strong">Option 2: Standardized Gap View</span> divides the unemployment gap by the <span class="strong">sample standard deviation of the unemployment gap</span> over the displayed time window. It measures how large the current gap is relative to its typical variation in the selected sample. Values below −1 indicate <span class="strong">tight</span> conditions, values above +1 indicate <span class="strong">slack</span>, and values between −1 and +1 indicate the labor market is <span class="strong">roughly balanced</span>.
-</p>
+      <p>
+        <span class="strong">Option 2: Standardized Gap View</span> divides the unemployment gap by the <span class="strong">sample standard deviation of the unemployment gap</span> over the displayed time window. It measures how large the current gap is relative to its typical variation in the selected sample. Values below −1 indicate <span class="strong">tight</span> conditions, values above +1 indicate <span class="strong">slack</span>, and values between −1 and +1 indicate the labor market is <span class="strong">roughly balanced</span>.
+      </p>
 
-<p>
-<span class="strong">Option 3: Standard-Error-Scaled Gap View</span> divides the Kansas City Fed unemployment gap by an approximate standard error of the Kansas City Fed natural unemployment rate, computed as half the width of the 68% credible set. Values below -1 indicate <span class="strong">tight</span> conditions, values above +1 indicate <span class="strong">slack</span> conditions, and values between -1 and +1 indicate the labor market is <span class="strong">roughly balanced</span>.
-</p>
+      <p>
+        <span class="strong">Option 3: Standard-Error-Scaled Gap View</span> divides the Kansas City Fed unemployment gap by an approximate standard error of the Kansas City Fed natural unemployment rate, computed as half the width of the 68% credible set. Values below -1 indicate <span class="strong">tight</span> conditions, values above +1 indicate <span class="strong">slack</span> conditions, and values between -1 and +1 indicate the labor market is <span class="strong">roughly balanced</span>.
+      </p>
     </section>
 
     <div id="appStatus" class="card span-12 loading">Loading data…</div>
@@ -287,7 +287,7 @@ The website presents three approaches to interpreting the unemployment gap. <spa
     <div class="grid">
       <section class="card span-12">
         <h2 class="section-title">Controls</h2>
-        <p class="subtle">Select a custom start month and end month, then update the dashboard. You can also download the data currently shown in each chart.</p>
+        <p class="subtle">Select a custom start month and end month, then update the dashboard.</p>
         <div class="control-grid">
           <div class="control-group">
             <label for="startMonth">Start month</label>
@@ -312,7 +312,6 @@ The website presents three approaches to interpreting the unemployment gap. <spa
             <div class="button-row">
               <button id="applyRangeBtn" type="button">Apply range</button>
               <button id="resetRangeBtn" type="button">Reset</button>
-              <button id="downloadCombinedBtn" type="button">Download displayed data</button>
             </div>
           </div>
         </div>
@@ -335,9 +334,6 @@ The website presents three approaches to interpreting the unemployment gap. <spa
         <h2 class="section-title">Natural-rate estimates and unemployment rate</h2>
         <p class="subtle">This chart compares the unemployment rate with the Kansas City Fed model-based natural unemployment rate, its 68% credible set, and the CBO noncyclical rate of unemployment.</p>
         <div class="chart-wrap"><canvas id="levelsChart"></canvas></div>
-        <div class="button-row" style="margin-top:14px;">
-          <button id="downloadLevelsBtn" type="button">Download first chart data</button>
-        </div>
       </section>
 
       <section class="card span-12">
@@ -348,9 +344,6 @@ The website presents three approaches to interpreting the unemployment gap. <spa
           <span id="credibleBadge" class="pill balanced">Roughly balanced</span>
           <span id="credibleSummary" class="small"></span>
         </div>
-        <div class="button-row" style="margin-top:14px;">
-          <button id="downloadCredibleBtn" type="button">Download credible-set chart data</button>
-        </div>
       </section>
 
       <section class="card span-12">
@@ -359,9 +352,6 @@ The website presents three approaches to interpreting the unemployment gap. <spa
         <div class="chart-wrap"><canvas id="standardizedChart"></canvas></div>
         <div id="sdInfoBox" class="note-box" style="margin-top:14px;"></div>
         <div id="stdValues" class="std-box"></div>
-        <div class="button-row" style="margin-top:14px;">
-          <button id="downloadStandardizedBtn" type="button">Download standardized chart data</button>
-        </div>
       </section>
 
       <section class="card span-12">
@@ -369,9 +359,6 @@ The website presents three approaches to interpreting the unemployment gap. <spa
         <p class="subtle">This chart divides the Kansas City Fed unemployment gap by an approximate standard error of the Kansas City Fed natural unemployment rate, computed as half the width of the 68% credible set. Values above +1 indicate slack, values below -1 indicate tightness, and values between -1 and +1 indicate the labor market is roughly balanced.</p>
         <div class="chart-wrap"><canvas id="robustnessChart"></canvas></div>
         <div id="robustnessSdInfoBox" class="note-box" style="margin-top:14px;"></div>
-        <div class="button-row" style="margin-top:14px;">
-          <button id="downloadRobustnessBtn" type="button">Download standard-error-scaled chart data</button>
-        </div>
       </section>
 
       <section class="card span-6">
@@ -397,62 +384,59 @@ The website presents three approaches to interpreting the unemployment gap. <spa
         <div class="note-box" id="interpretationNotes"></div>
       </section>
 
-     <section class="card span-6">
-  <h2 class="section-title">Data Sources</h2>
-  <div class="note-box">
-    <ul>
-      <li>
-        <span class="strong">Kansas City Fed model-based natural unemployment rate (u*):</span>
-        <a href="https://www.kansascityfed.org/data-and-trends/kansas-city-fed-model-based-natural-rate-of-interest-and-natural-unemployment-rate/" target="_blank">
-          Federal Reserve Bank of Kansas City
-        </a>
-      </li>
-      <li>
-        <span class="strong">Unemployment rate:</span>
-        <a href="https://fred.stlouisfed.org/series/UNRATE" target="_blank">
-          U.S. Bureau of Labor Statistics (via FRED)
-        </a>
-      </li>
-      <li>
-        <span class="strong">CBO noncyclical rate of unemployment:</span>
-        <a href="https://fred.stlouisfed.org/series/NROU" target="_blank">
-          Congressional Budget Office (via FRED)
-        </a>
-      </li>
-    </ul>
+      <section class="card span-6">
+        <h2 class="section-title">Data Sources</h2>
+        <div class="note-box">
+          <ul>
+            <li>
+              <span class="strong">Kansas City Fed model-based natural unemployment rate (u*):</span>
+              <a href="https://www.kansascityfed.org/data-and-trends/kansas-city-fed-model-based-natural-rate-of-interest-and-natural-unemployment-rate/" target="_blank">
+                Federal Reserve Bank of Kansas City
+              </a>
+            </li>
+            <li>
+              <span class="strong">Unemployment rate:</span>
+              <a href="https://fred.stlouisfed.org/series/UNRATE" target="_blank">
+                U.S. Bureau of Labor Statistics (via FRED)
+              </a>
+            </li>
+            <li>
+              <span class="strong">CBO noncyclical rate of unemployment:</span>
+              <a href="https://fred.stlouisfed.org/series/NROU" target="_blank">
+                Congressional Budget Office (via FRED)
+              </a>
+            </li>
+          </ul>
 
-    <p class="small">
-      The CBO series is reported at a quarterly frequency. In this dashboard, each quarterly value is repeated across the corresponding three months to enable comparison with monthly unemployment data.
-    </p>
+          <p class="small">
+            The CBO series is reported at a quarterly frequency. In this dashboard, each quarterly value is repeated across the corresponding three months to enable comparison with monthly unemployment data.
+          </p>
 
-    <p class="small">
-      All data are publicly available. Data transformations and alignment are performed by the author.
-    </p>
-  </div>
-</section>
+          <p class="small">
+            All data are publicly available. Data transformations and alignment are performed by the author.
+          </p>
+        </div>
+      </section>
 
+      <section class="card span-6">
+        <h2 class="section-title">About</h2>
+        <div class="note-box">
+          <p><span class="strong">Author:</span> <a href="https://www.johnsonoliyide.com/" target="_blank" rel="noopener noreferrer">Johnson Oliyide</a></p>
+          <p class="small">Research Associate, Federal Reserve Bank of Kansas City</p>
 
-<section class="card span-6">
-  <h2 class="section-title">About</h2>
-  <div class="note-box">
+          <p>
+            This dashboard presents measures of labor market tightness based on publicly available data and model-based estimates.
+          </p>
 
-    <p><span class="strong">Author:</span> <a href="https://www.johnsonoliyide.com/" target="_blank" rel="noopener noreferrer">Johnson Oliyide</a></p>
-    <p class="small">Research Associate, Federal Reserve Bank of Kansas City</p>
+          <p>
+            The views expressed in this dashboard are those of the author and should not be interpreted as reflecting the views of the Federal Reserve Bank of Kansas City or the Federal Reserve System.
+          </p>
 
-    <p>
-      This dashboard presents measures of labor market tightness based on publicly available data and model-based estimates.
-    </p>
-
-    <p>
-      The views expressed in this dashboard are those of the author and should not be interpreted as reflecting the views of the Federal Reserve Bank of Kansas City or the Federal Reserve System.
-    </p>
-
-    <p>
-      The data used in this dashboard are obtained from publicly available sources, including the Federal Reserve Bank of Kansas City, the U.S. Bureau of Labor Statistics, and the Congressional Budget Office. The author does not claim ownership of these data.
-    </p>
-
-  </div>
-</section>
+          <p>
+            The data used in this dashboard are obtained from publicly available sources, including the Federal Reserve Bank of Kansas City, the U.S. Bureau of Labor Statistics, and the Congressional Budget Office. The author does not claim ownership of these data.
+          </p>
+        </div>
+      </section>
     </div>
   </div>
 
@@ -497,11 +481,6 @@ The website presents three approaches to interpreting the unemployment gap. <spa
       quickRange: document.getElementById("quickRange"),
       applyRangeBtn: document.getElementById("applyRangeBtn"),
       resetRangeBtn: document.getElementById("resetRangeBtn"),
-      downloadCombinedBtn: document.getElementById("downloadCombinedBtn"),
-      downloadLevelsBtn: document.getElementById("downloadLevelsBtn"),
-      downloadCredibleBtn: document.getElementById("downloadCredibleBtn"),
-      downloadStandardizedBtn: document.getElementById("downloadStandardizedBtn"),
-      downloadRobustnessBtn: document.getElementById("downloadRobustnessBtn"),
       rangeNote: document.getElementById("rangeNote"),
     };
 
@@ -734,7 +713,6 @@ The website presents three approaches to interpreting the unemployment gap. <spa
       ids.credibleBadge.textContent = cred.label;
       ids.credibleSummary.textContent = `For ${monthLabel(latest.date)}, the Kansas City Fed unemployment gap is ${formatGap(latest.gapKc)}, with a 68% credible-set gap range from ${formatGap(latest.gapLower)} to ${formatGap(latest.gapUpper)}.`;
     }
-
 
     function renderSDInfo() {
       const shown = getDisplayedSeries();
@@ -1039,7 +1017,6 @@ The website presents three approaches to interpreting the unemployment gap. <spa
       });
     }
 
-
     function renderRobustnessChart() {
       const shown = getDisplayedSeries();
       const labels = displayedLabels(shown);
@@ -1119,6 +1096,7 @@ The website presents three approaches to interpreting the unemployment gap. <spa
       renderComparisonTable();
       renderNotes();
       renderStdValues();
+      renderSDInfo();
       renderLevelsChart();
       renderCredibleChart();
       renderStandardizedChart();
@@ -1165,42 +1143,6 @@ The website presents three approaches to interpreting the unemployment gap. <spa
       renderAll();
     }
 
-    function downloadCsv(filename, rows) {
-      const csv = Papa.unparse(rows);
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    }
-
-    function currentCombinedRows() {
-      const shown = getDisplayedSeries();
-      const { sdGapKc, sdGapCbo } = getGapSampleStandardDeviations(shown);
-      return shown.map(d => ({
-        date: d.date,
-        unemployment_rate: d.unemployment,
-        kc_fed_model_based_natural_rate_of_unemployment: d.kcUStar,
-        kc_fed_68pct_lower: d.kcLower,
-        kc_fed_68pct_upper: d.kcUpper,
-        cbo_noncyclical_rate_of_unemployment: d.cboUStar,
-        kc_unemployment_gap: d.gapKc,
-        kc_gap_lower: d.gapLower,
-        kc_gap_upper: d.gapUpper,
-        cbo_unemployment_gap: d.gapCbo,
-        kc_gap_sample_sd: sdGapKc,
-        cbo_gap_sample_sd: sdGapCbo,
-        kc_standardized_gap_sample_sd: (sdGapKc && d.gapKc !== null) ? d.gapKc / sdGapKc : null,
-        cbo_standardized_gap_sample_sd: (sdGapCbo && d.gapCbo !== null) ? d.gapCbo / sdGapCbo : null,
-        kc_standard_error_approx: getApproxSeKc(d),
-        kc_gap_scaled_by_standard_error: getSeStandardizedKc(d),
-      }));
-    }
-
     function attachEvents() {
       ids.applyRangeBtn.addEventListener('click', () => {
         try {
@@ -1224,33 +1166,6 @@ The website presents three approaches to interpreting the unemployment gap. <spa
       });
 
       ids.quickRange.addEventListener('change', (e) => applyQuickRange(e.target.value));
-      ids.downloadCombinedBtn.addEventListener('click', () => downloadCsv('labor_market_tightness_displayed_data.csv', currentCombinedRows()));
-      ids.downloadLevelsBtn.addEventListener('click', () => downloadCsv('chart1_natural_rate_and_unemployment.csv', currentCombinedRows().map(d => ({
-        date: d.date,
-        unemployment_rate: d.unemployment_rate,
-        kc_fed_model_based_natural_rate_of_unemployment: d.kc_fed_model_based_natural_rate_of_unemployment,
-        kc_fed_68pct_lower: d.kc_fed_68pct_lower,
-        kc_fed_68pct_upper: d.kc_fed_68pct_upper,
-        cbo_noncyclical_rate_of_unemployment: d.cbo_noncyclical_rate_of_unemployment,
-      }))));
-      ids.downloadCredibleBtn.addEventListener('click', () => downloadCsv('chart2_credible_set_view.csv', currentCombinedRows().map(d => ({
-        date: d.date,
-        kc_unemployment_gap: d.kc_unemployment_gap,
-        kc_gap_lower: d.kc_gap_lower,
-        kc_gap_upper: d.kc_gap_upper,
-      }))));
-      ids.downloadStandardizedBtn.addEventListener('click', () => downloadCsv('chart3_standardized_gap_view_sample_gap_sd.csv', currentCombinedRows().map(d => ({
-        date: d.date,
-        kc_gap_sample_sd: d.kc_gap_sample_sd,
-        cbo_gap_sample_sd: d.cbo_gap_sample_sd,
-        kc_standardized_gap_sample_sd: d.kc_standardized_gap_sample_sd,
-        cbo_standardized_gap_sample_sd: d.cbo_standardized_gap_sample_sd,
-      }))));
-      ids.downloadRobustnessBtn.addEventListener('click', () => downloadCsv('chart4_kc_gap_scaled_by_standard_error.csv', currentCombinedRows().map(d => ({
-        date: d.date,
-        kc_standard_error_approx: d.kc_standard_error_approx,
-        kc_gap_scaled_by_standard_error: d.kc_gap_scaled_by_standard_error,
-      }))));
     }
 
     async function fetchText(url) {
