@@ -421,7 +421,7 @@
           </p>
 
           <p class="small">
-            All data are publicly available. Data transformations and alignment are performed by the author.
+            October 2025 unemployment is imputed as 4.4 percent when the source observation is missing. All data are publicly available. Data transformations and alignment are performed by the author.
           </p>
         </div>
       </section>
@@ -449,9 +449,9 @@
   </div>
 
   <script>
-    const KC_CSV_URL = "./KCFed_ModelBased_Rstar_Ustar.csv";
-    const UNRATE_CSV_URL = "./UNRATE.csv";
-    const NROU_CSV_URL = "./NROU.csv";
+    const KC_CSV_URL = "https://raw.githubusercontent.com/JohnsonOliyide/labor-market-dashboard/main/KCFed_ModelBased_Rstar_Ustar.csv";
+    const UNRATE_CSV_URL = "https://raw.githubusercontent.com/JohnsonOliyide/labor-market-dashboard/main/UNRATE.csv";
+    const NROU_CSV_URL = "https://raw.githubusercontent.com/JohnsonOliyide/labor-market-dashboard/main/NROU.csv";
 
     const state = {
       kc: [],
@@ -494,6 +494,7 @@
     function parseNumber(value) {
       if (value === null || value === undefined || value === "") return null;
       const cleaned = String(value).replace(/"/g, "").replace(/,/g, "").trim();
+      if (!cleaned || cleaned === ".") return null;
       const n = Number(cleaned);
       return Number.isFinite(n) ? n : null;
     }
@@ -561,7 +562,7 @@
       if (lines.length < 3) throw new Error("KC CSV is too short.");
       const dataLines = lines.slice(2);
       return dataLines.map(line => {
-        const row = line.split(",");
+        const row = Papa.parse(line).data[0];
         return {
           date: cleanString(row[0]),
           rStar: parseNumber(row[1]),
@@ -571,7 +572,7 @@
           uLower: parseNumber(row[5]),
           uUpper: parseNumber(row[6]),
         };
-      }).filter(d => d.date && d.uStar !== null);
+      }).filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d.date) && d.uStar !== null).sort((a,b)=>a.date.localeCompare(b.date));
     }
 
     function parseFredCsv(csvText) {
@@ -1165,7 +1166,7 @@
     }
 
     async function fetchText(url) {
-      const response = await fetch(url + (url.includes('?') ? '&' : '?') + 'ts=' + Date.now());
+      const response = await fetch(url + (url.includes('?') ? '&' : '?') + 'ts=' + Date.now(), {signal: AbortSignal.timeout(30000)});
       if (!response.ok) throw new Error(`Could not fetch ${url}`);
       return response.text();
     }

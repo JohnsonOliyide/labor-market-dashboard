@@ -3,13 +3,23 @@ name: Update Data
 on:
   schedule:
     - cron: "0 12 * * *"
+  push:
+    paths:
+      - "scripts/**"
+      - "requirements.txt"
+      - ".github/workflows/**"
   workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: data-refresh
+  cancel-in-progress: false
+
 jobs:
   update-data:
+    timeout-minutes: 20
     runs-on: ubuntu-latest
 
     steps:
@@ -24,9 +34,10 @@ jobs:
       - name: Install requests
         run: pip install requests
 
+      - name: Check refresh safeguards
+        run: python -m unittest discover -s tests
+
       - name: Run update script
-        env:
-          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python scripts/update_data.py
 
       - name: Commit changes
